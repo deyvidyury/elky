@@ -1,0 +1,62 @@
+@import 'tailwindcss';
+
+@theme {
+  /* Primary: Deep Navy (professional, trustworthy) */
+  --color-brand-50: #eef2f7;
+  --color-brand-100: #d5dfed;
+  --color-brand-200: #b0c5de;
+  --color-brand-300: #7d9fc9;
+  --color-brand-400: #547db0;
+  --color-brand-500: #396296;
+  --color-brand-600: #2c4d7a;
+  --color-brand-700: #1e3a5f;
+  --color-brand-800: #162d4a;
+  --color-brand-900: #0f1f35;
+
+  /* Accent: Warm Gold (premium, energetic) */
+  --color-accent-50: #fffbeb;
+  --color-accent-100: #fef3c7;
+  --color-accent-200: #fde68a;
+  --color-accent-300: #fcd34d;
+  --color-accent-400: #fbbf24;
+  --color-accent-500: #d4a017;
+  --color-accent-600: #b8860b;
+  --color-accent-700: #92600a;
+  --color-accent-800: #784f0a;
+  --color-accent-900: #5c3d09;
+
+  /* Secondary: Rich Red (restaurant industry feel — inspired by Rebal) */
+  --color-secondary-50: #fef2f2;
+  --color-secondary-100: #fee2e2;
+  --color-secondary-200: #fecaca;
+  --color-secondary-300: #fca5a5;
+  --color-secondary-400: #f87171;
+  --color-secondary-500: #c0392b;
+  --color-secondary-600: #a93226;
+  --color-secondary-700: #8b0000;
+  --color-secondary-800: #6b0000;
+  --color-secondary-900: #4a0000;
+
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Playfair Display', 'Georgia', serif;
+}
+
+/* Smooth scrolling for anchor links */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-white text-gray-800 antialiased;
+  font-family: var(--font-sans);
+}
+
+/* Professional focus ring */
+*:focus-visible {
+  @apply outline-2 outline-offset-2 outline-brand-500 rounded;
+}
+
+/* Custom utility for section headers */
+.section-badge {
+  @apply inline-flex items-center rounded-full bg-accent-100 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-accent-700;
+}
