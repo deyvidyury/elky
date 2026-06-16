@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
 import Script from 'next/script';
 import './globals.css';
-import { Header } from '@/components/Header';
-import { Footer } from '@/components/Footer';
+import { HeaderSwitcher } from '@/components/HeaderSwitcher';
+import { FooterSwitcher } from '@/components/FooterSwitcher';
 
 export const metadata: Metadata = {
   title: {
@@ -32,7 +32,7 @@ export default function RootLayout({
   return (
     <html lang="pt-BR">
       <head>
-        {/* Google Fonts: Inter (body) + Playfair Display (headings) */}
+        {/* Google Fonts: Inter (body), Playfair Display (headings), Poppins (figma body) */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
           rel="preconnect"
@@ -40,7 +40,7 @@ export default function RootLayout({
           crossOrigin="anonymous"
         />
         <link
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Poppins:wght@400;500;600;700&display=swap"
           rel="stylesheet"
         />
         {/* Google AdSense Script — loaded after hydration to avoid render-blocking */}
@@ -52,9 +52,9 @@ export default function RootLayout({
         />
       </head>
       <body className="flex min-h-screen flex-col">
-        <Header />
+        <HeaderSwitcher />
         <main className="flex-1">{children}</main>
-        <Footer />
+        <FooterSwitcher />
       </body>
     </html>
   );

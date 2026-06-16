@@ -39,6 +39,31 @@
 
   --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
   --font-display: 'Playfair Display', 'Georgia', serif;
+
+  /* ============================================
+     Figma E-Commerce Design System
+     Based on Full E-Commerce Website UI UX Design
+     ============================================ */
+
+  /* Backgrounds */
+  --color-figma-bg: #ffffff;
+  --color-figma-bg-secondary: #f5f5f5;
+  --color-figma-dark: #2f2e30;
+  --color-figma-dark-text: #fafafa;
+
+  /* Accent */
+  --color-figma-red: #db4444;
+  --color-figma-red-hover: #e07575;
+  --color-figma-green: #00ff66;
+
+  /* Text */
+  --color-figma-text: #000000;
+  --color-figma-text-muted: rgba(0, 0, 0, 0.5);
+  --color-figma-border: rgba(0, 0, 0, 0.1);
+
+  /* Figma Typography */
+  --font-figma-heading: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-figma-body: 'Poppins', 'Inter', ui-sans-serif, system-ui, sans-serif;
 }
 
 /* Smooth scrolling for anchor links */

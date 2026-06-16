@@ -1,0 +1,224 @@
+'use client';
+
+import Link from 'next/link';
+import { useState } from 'react';
+
+export function FigmaHeader() {
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  const navLinks = [
+    { label: 'Home', href: '/figma' },
+    { label: 'Produtos', href: '/figma/produtos' },
+    { label: 'Sobre', href: '/figma/sobre' },
+    { label: 'Contato', href: '/figma/contato' },
+  ];
+
+  return (
+    <header className="sticky top-0 z-50">
+      {/* Top bar — black announcement bar */}
+      <div className="bg-[#2f2e30] text-[#fafafa]">
+        <div className="mx-auto flex max-w-[1170px] items-center justify-between px-4 py-3 text-xs sm:px-6">
+          <div className="flex items-center gap-4">
+            <p className="flex items-center gap-2">
+              <span className="hidden sm:inline">
+                Summer Sale For All Swim Suits And Free Express Delivery — OFF
+                50%!
+              </span>
+              <span className="sm:hidden">Summer Sale — OFF 50%!</span>
+            </p>
+            <Link
+              href="/figma/produtos"
+              className="font-semibold underline underline-offset-4 hover:text-[#db4444] transition-colors"
+            >
+              Shop Now
+            </Link>
+          </div>
+          <div className="flex items-center gap-1.5 text-xs cursor-pointer hover:text-[#db4444] transition-colors">
+            <span>Português</span>
+            <svg
+              className="h-3 w-3"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M19 9l-7 7-7-7"
+              />
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      {/* Main header — white */}
+      <div className="border-b border-[rgba(0,0,0,0.1)] bg-white">
+        <div className="mx-auto flex max-w-[1170px] items-center justify-between px-4 py-4 sm:px-6">
+          {/* Logo */}
+          <Link
+            href="/figma"
+            className="text-2xl font-bold text-[#2f2e30] tracking-tight"
+          >
+            Guia de Suprimentos
+          </Link>
+
+          {/* Desktop Nav */}
+          <nav className="hidden lg:flex items-center gap-8">
+            {navLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="text-sm text-[#2f2e30] hover:text-[#db4444] transition-colors"
+              >
+                {link.label}
+              </Link>
+            ))}
+          </nav>
+
+          {/* Search + Wishlist + Cart */}
+          <div className="flex items-center gap-4">
+            {/* Search */}
+            <div className="hidden sm:flex items-center bg-[#f5f5f5] rounded-md px-3 py-2 gap-2">
+              <input
+                type="text"
+                placeholder="O que você procura?"
+                className="bg-transparent text-xs text-[#2f2e30] placeholder:text-[rgba(0,0,0,0.4)] outline-none w-40 lg:w-56"
+              />
+              <svg
+                className="h-4 w-4 text-[#2f2e30] shrink-0"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                />
+              </svg>
+            </div>
+
+            {/* Wishlist */}
+            <button
+              className="relative p-1.5 text-[#2f2e30] hover:text-[#db4444] transition-colors"
+              aria-label="Favoritos"
+            >
+              <svg
+                className="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={1.5}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                />
+              </svg>
+            </button>
+
+            {/* Cart */}
+            <button
+              className="relative p-1.5 text-[#2f2e30] hover:text-[#db4444] transition-colors"
+              aria-label="Carrinho"
+            >
+              <svg
+                className="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={1.5}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z"
+                />
+              </svg>
+            </button>
+
+            {/* Mobile hamburger */}
+            <button
+              type="button"
+              className="lg:hidden p-1.5 text-[#2f2e30] hover:text-[#db4444] transition-colors"
+              onClick={() => setMobileOpen(!mobileOpen)}
+              aria-label="Abrir menu"
+            >
+              {mobileOpen ? (
+                <svg
+                  className="h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              ) : (
+                <svg
+                  className="h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M4 6h16M4 12h16M4 18h16"
+                  />
+                </svg>
+              )}
+            </button>
+          </div>
+        </div>
+
+        {/* Mobile Menu */}
+        {mobileOpen && (
+          <div className="lg:hidden border-t border-[rgba(0,0,0,0.1)] bg-white">
+            <div className="mx-auto max-w-[1170px] px-4 py-3 space-y-1 sm:px-6">
+              {/* Mobile search */}
+              <div className="flex items-center bg-[#f5f5f5] rounded-md px-3 py-2.5 gap-2 mb-2 sm:hidden">
+                <svg
+                  className="h-4 w-4 text-[rgba(0,0,0,0.4)] shrink-0"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                  />
+                </svg>
+                <input
+                  type="text"
+                  placeholder="O que você procura?"
+                  className="bg-transparent text-sm text-[#2f2e30] placeholder:text-[rgba(0,0,0,0.4)] outline-none flex-1"
+                />
+              </div>
+              {navLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className="block rounded-md px-3 py-2.5 text-base text-[#2f2e30] hover:bg-[#f5f5f5] hover:text-[#db4444] transition-colors"
+                  onClick={() => setMobileOpen(false)}
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </header>
+  );
+}
