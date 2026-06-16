@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
+import { AuthButton } from '@/components/AuthButton';
 
 export function FigmaHeader() {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -76,8 +77,10 @@ export function FigmaHeader() {
             ))}
           </nav>
 
-          {/* Search + Wishlist + Cart */}
+          {/* Auth + Search + Wishlist + Cart */}
           <div className="flex items-center gap-4">
+            <AuthButton />
+
             {/* Search */}
             <div className="hidden sm:flex items-center bg-[#f5f5f5] rounded-md px-3 py-2 gap-2">
               <input

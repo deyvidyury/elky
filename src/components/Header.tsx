@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
+import { AuthButton } from '@/components/AuthButton';
 
 export function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -97,7 +98,7 @@ export function Header() {
             ))}
           </nav>
 
-          {/* CTA + Mobile Toggle */}
+          {/* CTA + Auth + Mobile Toggle */}
           <div className="flex items-center gap-3">
             <Link
               href="/produtos"
@@ -105,6 +106,8 @@ export function Header() {
             >
               Ver Produtos
             </Link>
+
+            <AuthButton />
 
             {/* Mobile hamburger */}
             <button
