@@ -69,7 +69,7 @@ export function AuthButton({ serverUser }: AuthButtonProps) {
         {isAdmin && (
           <Link
             href="/admin"
-            className="hidden sm:inline-flex items-center gap-1 rounded-lg bg-brand-700 px-3 py-1.5 text-xs font-semibold text-white hover:bg-brand-800 transition-colors"
+            className="inline-flex items-center gap-1 rounded-lg bg-brand-700 px-3 py-1.5 text-xs font-semibold text-white hover:bg-brand-800 transition-colors"
           >
             <svg
               className="h-3.5 w-3.5"

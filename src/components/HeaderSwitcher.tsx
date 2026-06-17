@@ -14,6 +14,10 @@ interface HeaderSwitcherProps {
 
 export function HeaderSwitcher({ serverUser }: HeaderSwitcherProps) {
   const pathname = usePathname();
+
+  // Hide site header on admin routes — admin has its own navigation
+  if (pathname.startsWith('/admin')) return null;
+
   const isFigma = pathname.startsWith('/figma');
   return isFigma ? (
     <FigmaHeader serverUser={serverUser} />

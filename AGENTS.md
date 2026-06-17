@@ -20,6 +20,7 @@ Backend-as-a-service (BaaS) platform providing:
 ## Installation
 
 The following is a step-by-step guide to installing and using the InsForge TypeScript SDK for Web applications. If you are building other types of applications, please refer to:
+
 - [Swift SDK documentation](/sdks/swift/overview) for iOS, macOS, tvOS, and watchOS applications.
 - [Kotlin SDK documentation](/sdks/kotlin/overview) for Android applications.
 - [REST API documentation](/sdks/rest/overview) for direct HTTP API access.
@@ -44,10 +45,9 @@ You must create a client instance using `createClient()` with your base URL and 
 import { createClient } from '@insforge/sdk';
 
 const client = createClient({
-  baseUrl: 'https://your-app.region.insforge.app',  // Your InsForge backend URL
-  anonKey: 'your-anon-key-here'       // Get this from backend metadata
+  baseUrl: 'https://your-app.region.insforge.app', // Your InsForge backend URL
+  anonKey: 'your-anon-key-here', // Get this from backend metadata
 });
-
 ```
 
 **API BASE URL**: Your API base URL is `https://your-app.region.insforge.app`.
@@ -90,6 +90,7 @@ These docs are mostly for the TypeScript SDK. For other languages, you can also 
 You can fetch SDK documentation using the `fetch-sdk-docs` MCP tool with a specific feature type and language.
 
 Available feature types:
+
 - `db` - Database operations
 - `storage` - File storage operations
 - `functions` - Serverless functions invocation
@@ -99,6 +100,7 @@ Available feature types:
 - `payments` - Stripe Checkout and Billing Portal with webhook-based fulfillment
 
 Available languages:
+
 - `typescript` - JavaScript/TypeScript SDK
 - `swift` - Swift SDK (for iOS, macOS, tvOS, and watchOS)
 - `kotlin` - Kotlin SDK (for Android and JVM applications)
@@ -134,4 +136,4 @@ Payments currently has TypeScript SDK docs only. Use the Payments API reference 
 - Serverless functions have one endpoint and do not support nested route paths
 - Storage: Upload files to buckets, store URLs in database
 - AI integrations should call OpenRouter directly with `baseURL: "https://openrouter.ai/api/v1"` and a server-side `OPENROUTER_API_KEY`
-- **EXTRA IMPORTANT**: Use Tailwind CSS 3.4 (do not upgrade to v4). Lock these dependencies in `package.json`
+- **EXTRA IMPORTANT**: Use Tailwind CSS v4 with `@tailwindcss/postcss`. Lock these dependencies in `package.json`

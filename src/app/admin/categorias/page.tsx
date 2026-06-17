@@ -36,7 +36,7 @@ export default async function AdminCategoriesPage() {
         </Link>
       </div>
 
-      <div className="rounded-xl border border-gray-200 bg-white overflow-hidden">
+      <div className="rounded-xl border border-gray-200 bg-white overflow-x-auto">
         {categories && categories.length > 0 ? (
           <table className="w-full">
             <thead>

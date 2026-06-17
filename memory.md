@@ -1,22 +1,29 @@
-# Memory — Auth Button Fix & Server-Side User Propagation
+# Memory — Admin Mobile Responsiveness & Sidebar
 
 Last updated: 2026-06-17
 
 ## What was built
 
-### Auth button visibility fix
+### Admin mobile sidebar (new component)
 
-The "Entrar" (Sign In) button was appearing at all times regardless of auth state. The `AuthButton` component already had correct UI logic internally (Entrar when logged out, Admin link + Sair when logged in as admin), but the client-side `insforge.auth.getCurrentUser()` via `createBrowserClient` was not detecting the session.
+- **`src/components/AdminSidebar.tsx`** — Client component replacing the inline sidebar in the admin layout. Mobile: fixed top bar with hamburger, sidebar slides in as overlay with backdrop. Auto-closes on route change, Escape key, or backdrop tap. Body scroll locked while open. Desktop: static sidebar unchanged. Active nav item highlighted.
 
-### Files modified
+### Layout refactor
 
-- **`src/app/layout.tsx`** — Converted to `async` server component. Now calls `createInsForgeServerClient().auth.getCurrentUser()` and passes `serverUser` to `HeaderSwitcher`.
-- **`src/components/HeaderSwitcher.tsx`** — Accepts `serverUser` prop, forwards it to both `Header` and `FigmaHeader`.
-- **`src/components/Header.tsx`** — Accepts `serverUser` prop, passes it to `AuthButton`.
-- **`src/components/FigmaHeader.tsx`** — Accepts `serverUser` prop, passes it to `AuthButton`.
-- **`src/components/AuthButton.tsx`** — Accepts optional `serverUser` prop. If provided (from SSR): uses it immediately (no loading flash). If not provided: falls back to original client-side `getCurrentUser()` fetch. The three UI states (Entrar / Admin+Sair / Skeleton) are unchanged.
+- **`src/app/admin/layout.tsx`** — Stripped to server-side auth check only, delegates all UI to `AdminSidebar`. Fixed `isAdmin` to boolean (was `boolean | null`).
+- **`src/components/HeaderSwitcher.tsx`** — Returns `null` on `/admin` routes so the main site header does not render on admin pages.
+- **`src/components/FooterSwitcher.tsx`** — Returns `null` on `/admin` routes.
 
-### Previously built (from prior session)
+### Mobile fixes across the project
+
+- **`src/components/AuthButton.tsx`** — Removed `hidden sm:` from the Admin link. Now visible on all screen sizes.
+- **`src/app/admin/produtos/page.tsx`** — Table wrapper: `overflow-hidden` -> `overflow-x-auto` for horizontal scroll.
+- **`src/app/admin/categorias/page.tsx`** — Same table fix.
+- **`AGENTS.md`** — Updated Tailwind CSS guidance from v3.4 to v4 with `@tailwindcss/postcss`.
+
+### Previously built (from prior sessions)
+
+**Auth fix:** Root layout fetches user server-side via `createInsForgeServerClient()` and propagates `serverUser` through `HeaderSwitcher` -> `Header`/`FigmaHeader` -> `AuthButton`. Auth button no longer flashes wrong state.
 
 **Complete admin CRUD panel with InsForge backend:**
 
@@ -24,42 +31,41 @@ The "Entrar" (Sign In) button was appearing at all times regardless of auth stat
 - Storage: `product-images` bucket (public read, admin-only write)
 - Admin pages: Dashboard, CRUD for categories and products with image upload and dynamic specs
 - Public pages updated to query InsForge DB directly
-- Old hardcoded data files (`products.ts`, `product-utils.ts`) deleted
+- Old hardcoded data files deleted
 
 ## Decisions made
 
-- **Server-side auth for headers**: The root layout now fetches the user server-side and propagates it down as props. This is more reliable than client-side cookie reading and eliminates the auth state flash.
-- **Graceful fallback**: `AuthButton` still has its own client-side fetch as fallback for any edge case where `serverUser` isn't provided.
-- **No changes to auth flow**: The OAuth callback, refresh route, and server actions (`initiateOAuth`, `signOut`) were left untouched — they were already working correctly.
-- **Image storage**: All images in InsForge Storage bucket `product-images`. Both `image_key` and `image_url` stored on products.
-- **Authorization**: JWT-based RLS using `auth.jwt() -> 'app_metadata' ->> 'role' = 'admin'`. No separate roles table.
-- **Admin UI**: Sidebar layout, server-component list pages, client-component forms with image upload and dynamic specs.
-- **Specs**: JSONB column, rendered as dynamic key-value rows in the admin form.
+- **Server-side auth for headers**: Root layout fetches user server-side, propagates as props. More reliable than client-side cookie reading.
+- **Admin sidebar as client component**: Uses `useState` for open/close, `usePathname` for route-aware auto-close.
+- **Main header/footer hidden on admin routes**: Via pathname check in switchers returning `null` for `/admin*`. Cleaner than z-index hacks.
+- **Sidebar animation**: `fixed` + `translate-x` transition on mobile, `static` on desktop. No layout shift.
+- **Authorization**: JWT-based RLS using `auth.jwt() -> 'app_metadata' ->> 'role' = 'admin'`.
+- **Tailwind v4 confirmed**: Project uses Tailwind CSS v4 with `@tailwindcss/postcss`.
 
 ## Problems solved
 
-- **Auth button always showing "Entrar"**: Root cause was that `createBrowserClient` from `@insforge/sdk/ssr` relies on reading httpOnly cookies in the browser, which can be unreliable. The server-side `createServerClient` (already used in admin layout) reads cookies directly from the request and works reliably. Fixed by passing server-fetched user down through props.
-- Fixed import paths for nested admin route pages (../../ instead of ../)
-- Fixed lint errors: unused imports and props
-- Deleted old hardcoded data files that caused build errors
+- **Admin sidebar invisible on mobile**: Original layout had static `w-64` sidebar with no collapse. Created `AdminSidebar` with hamburger drawer.
+- **Main site header covering admin mobile bar**: Header had `sticky top-0 z-50`, admin bar had `z-30`. Fixed by hiding header on admin routes via `HeaderSwitcher`.
+- **Admin button hidden on mobile**: `AuthButton` had `hidden sm:inline-flex` on the admin link.
+- **TypeScript error**: `isAdmin` was `boolean | null`, `AdminSidebar` expected `boolean`. Fixed with `!!()`.
+- **Table overflow on mobile**: Tables now have `overflow-x-auto`.
+- **Auth button always showing "Entrar"** (prior session): `createBrowserClient` unreliable for cookie reading. Fixed with server-side fetch.
 
 ## Current state
 
 - Build passes ✅
-- Auth button now correctly shows:
-  - "Entrar" when not logged in
-  - Admin link + "Sair" when logged in as admin
-  - "Sair" only when logged in as non-admin
-- Admin CRUD pages: created but NOT yet tested in browser
+- Admin fully responsive: hamburger drawer on mobile, static sidebar on desktop
+- Mobile admin top bar: hamburger (left), "Admin" title (center), home icon (right)
+- Auth button shows "Admin" link on all screen sizes when logged in as admin
+- Tables scroll horizontally on narrow screens
+- Admin CRUD pages built but NOT yet tested in browser
 - Admin user: `deyvidyury@gmail.com` with `metadata.role = "admin"`
-- 5 categories and 20 products migrated to DB
-- Images still use Unsplash URLs (not yet migrated to InsForge Storage)
-- The admin role for the friend needs to be set when they create their account
+- 5 categories, 20 products in DB; images still on Unsplash URLs
 
 ## Next session starts with
 
-- Test the auth fix: `npm run dev`, sign in with Google OAuth, verify "Entrar" disappears and admin link + "Sair" appears
-- Test the admin panel: CRUD categories and products
+- `npm run dev`, sign in with Google OAuth, verify: admin button on home page, navigate to /admin, test sidebar toggle on mobile
+- Test admin CRUD end-to-end (create/edit/delete categories and products)
 - Migrate product images from Unsplash to InsForge Storage
 - Deploy to Vercel
 
@@ -67,3 +73,4 @@ The "Entrar" (Sign In) button was appearing at all times regardless of auth stat
 
 - Should the admin panel have additional features (order tracking, analytics)?
 - Do we need a public Storage bucket RLS policy for image uploads?
+- Admin role assignment for the friend's account when they create it
