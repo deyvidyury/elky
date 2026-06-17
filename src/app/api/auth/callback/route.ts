@@ -2,6 +2,9 @@ import { cookies } from 'next/headers';
 import { NextResponse, type NextRequest } from 'next/server';
 import { createAuthActions } from '@insforge/sdk/ssr';
 
+const insforgeBaseUrl = process.env.NEXT_PUBLIC_INSFORGE_URL!;
+const insforgeAnonKey = process.env.NEXT_PUBLIC_INSFORGE_ANON_KEY!;
+
 function getBaseUrl(request: NextRequest): string {
   const host = request.headers.get('host') || 'localhost:3000';
   const proto = request.headers.get('x-forwarded-proto') || 'http';
@@ -33,6 +36,8 @@ export async function GET(request: NextRequest) {
 
   const response = NextResponse.redirect(new URL('/admin', baseUrl));
   const auth = createAuthActions({
+    baseUrl: insforgeBaseUrl,
+    anonKey: insforgeAnonKey,
     requestCookies: request.cookies,
     responseCookies: response.cookies,
   });

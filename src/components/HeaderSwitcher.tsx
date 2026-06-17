@@ -4,8 +4,20 @@ import { usePathname } from 'next/navigation';
 import { Header } from '@/components/Header';
 import { FigmaHeader } from '@/components/FigmaHeader';
 
-export function HeaderSwitcher() {
+interface HeaderSwitcherProps {
+  serverUser?: {
+    email?: string;
+    profile?: { name?: string | null; avatar_url?: string | null } | null;
+    metadata?: Record<string, unknown> | null;
+  } | null;
+}
+
+export function HeaderSwitcher({ serverUser }: HeaderSwitcherProps) {
   const pathname = usePathname();
   const isFigma = pathname.startsWith('/figma');
-  return isFigma ? <FigmaHeader /> : <Header />;
+  return isFigma ? (
+    <FigmaHeader serverUser={serverUser} />
+  ) : (
+    <Header serverUser={serverUser} />
+  );
 }

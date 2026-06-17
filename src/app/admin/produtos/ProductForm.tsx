@@ -1,0 +1,401 @@
+'use client';
+
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { insforge } from '@/lib/insforge/client';
+
+interface Spec {
+  key: string;
+  value: string;
+}
+
+interface ProductFormData {
+  name: string;
+  slug: string;
+  category_id: string;
+  price: string;
+  description: string;
+  supplier: string;
+  featured: boolean;
+  specs: Spec[];
+}
+
+interface ProductFormProps {
+  mode: 'create' | 'edit';
+  categories: Array<{ id: string; name: string }>;
+  product?: {
+    id: string;
+    name: string;
+    slug: string;
+    category_id: string;
+    price: string;
+    description: string;
+    image_key: string;
+    image_url: string;
+    specs: Record<string, string>;
+    supplier: string | null;
+    featured: boolean;
+  };
+}
+
+export function ProductForm({ mode, categories, product }: ProductFormProps) {
+  const router = useRouter();
+  const [saving, setSaving] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string>(
+    product?.image_url ?? '',
+  );
+  const [form, setForm] = useState<ProductFormData>({
+    name: product?.name ?? '',
+    slug: product?.slug ?? '',
+    category_id: product?.category_id ?? categories[0]?.id ?? '',
+    price: product?.price ?? '',
+    description: product?.description ?? '',
+    supplier: product?.supplier ?? '',
+    featured: product?.featured ?? false,
+    specs: product?.specs
+      ? Object.entries(product.specs).map(([key, value]) => ({ key, value }))
+      : [{ key: '', value: '' }],
+  });
+
+  function updateField(field: keyof ProductFormData, value: string | boolean) {
+    setForm((prev) => ({ ...prev, [field]: value }));
+  }
+
+  function generateSlug(name: string) {
+    return name
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '');
+  }
+
+  function handleNameChange(value: string) {
+    updateField('name', value);
+    if (mode === 'create' && !form.slug) {
+      updateField('slug', generateSlug(value));
+    }
+  }
+
+  function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setImageFile(file);
+    setImagePreview(URL.createObjectURL(file));
+  }
+
+  function updateSpec(index: number, field: 'key' | 'value', val: string) {
+    const newSpecs = [...form.specs];
+    newSpecs[index] = { ...newSpecs[index], [field]: val };
+    setForm((prev) => ({ ...prev, specs: newSpecs }));
+  }
+
+  function addSpec() {
+    setForm((prev) => ({
+      ...prev,
+      specs: [...prev.specs, { key: '', value: '' }],
+    }));
+  }
+
+  function removeSpec(index: number) {
+    setForm((prev) => ({
+      ...prev,
+      specs: prev.specs.filter((_, i) => i !== index),
+    }));
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setSaving(true);
+
+    let imageKey = product?.image_key ?? '';
+    let imageUrl = product?.image_url ?? '';
+
+    // Upload image if new file selected
+    if (imageFile) {
+      const ext = imageFile.name.split('.').pop() ?? 'jpg';
+      const path = `products/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+
+      const { data: uploadData, error: uploadError } = await insforge.storage
+        .from('product-images')
+        .upload(path, imageFile);
+
+      if (uploadError || !uploadData) {
+        alert(
+          'Erro ao enviar imagem: ' + (uploadError?.message ?? 'desconhecido'),
+        );
+        setSaving(false);
+        return;
+      }
+
+      imageKey = uploadData.key;
+      imageUrl = uploadData.url;
+    }
+
+    const specsObj: Record<string, string> = {};
+    for (const spec of form.specs) {
+      if (spec.key.trim()) {
+        specsObj[spec.key.trim()] = spec.value.trim();
+      }
+    }
+
+    const payload = {
+      name: form.name,
+      slug: form.slug,
+      category_id: form.category_id,
+      price: form.price,
+      description: form.description,
+      supplier: form.supplier || null,
+      featured: form.featured,
+      specs: specsObj,
+      image_key: imageKey,
+      image_url: imageUrl,
+    };
+
+    if (mode === 'create') {
+      const { error } = await insforge.database
+        .from('products')
+        .insert(payload);
+
+      if (error) {
+        alert('Erro ao criar: ' + error.message);
+        setSaving(false);
+        return;
+      }
+    } else {
+      const { error } = await insforge.database
+        .from('products')
+        .update(payload)
+        .eq('id', product!.id);
+
+      if (error) {
+        alert('Erro ao salvar: ' + error.message);
+        setSaving(false);
+        return;
+      }
+    }
+
+    router.push('/admin/produtos');
+    router.refresh();
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="max-w-2xl">
+      <div className="space-y-5">
+        {/* Name */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1.5">
+            Nome do Produto
+          </label>
+          <input
+            type="text"
+            value={form.name}
+            onChange={(e) => handleNameChange(e.target.value)}
+            required
+            className="block w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 outline-none transition-shadow"
+            placeholder="Ex: Papel Toalha Interfolhado 2000 Folhas"
+          />
+        </div>
+
+        {/* Slug */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1.5">
+            Slug
+          </label>
+          <input
+            type="text"
+            value={form.slug}
+            onChange={(e) => updateField('slug', e.target.value)}
+            required
+            className="block w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-mono focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 outline-none transition-shadow"
+            placeholder="ex: papel-toalha-interfolhado-2000-folhas"
+          />
+        </div>
+
+        {/* Category */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1.5">
+            Categoria
+          </label>
+          <select
+            value={form.category_id}
+            onChange={(e) => updateField('category_id', e.target.value)}
+            required
+            className="block w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 outline-none transition-shadow bg-white"
+          >
+            {categories.map((cat) => (
+              <option key={cat.id} value={cat.id}>
+                {cat.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Price */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1.5">
+            Preço
+          </label>
+          <input
+            type="text"
+            value={form.price}
+            onChange={(e) => updateField('price', e.target.value)}
+            required
+            className="block w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 outline-none transition-shadow"
+            placeholder="Ex: R$ 18,90"
+          />
+        </div>
+
+        {/* Description */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1.5">
+            Descrição
+          </label>
+          <textarea
+            value={form.description}
+            onChange={(e) => updateField('description', e.target.value)}
+            required
+            rows={4}
+            className="block w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 outline-none transition-shadow resize-none"
+            placeholder="Descrição detalhada do produto..."
+          />
+        </div>
+
+        {/* Supplier */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1.5">
+            Fornecedor
+          </label>
+          <input
+            type="text"
+            value={form.supplier}
+            onChange={(e) => updateField('supplier', e.target.value)}
+            className="block w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 outline-none transition-shadow"
+            placeholder="Opcional"
+          />
+        </div>
+
+        {/* Featured */}
+        <div className="flex items-center gap-3">
+          <input
+            type="checkbox"
+            id="featured"
+            checked={form.featured}
+            onChange={(e) => updateField('featured', e.target.checked)}
+            className="h-4 w-4 rounded border-gray-300 text-brand-600 focus:ring-brand-500"
+          />
+          <label
+            htmlFor="featured"
+            className="text-sm font-medium text-gray-700"
+          >
+            Produto em destaque
+          </label>
+        </div>
+
+        {/* Image Upload */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1.5">
+            Imagem do Produto
+          </label>
+          {imagePreview && (
+            <img
+              src={imagePreview}
+              alt="Preview"
+              className="mb-3 h-40 w-full rounded-lg object-cover bg-gray-100"
+            />
+          )}
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleImageChange}
+            className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-brand-50 file:text-brand-700 hover:file:bg-brand-100"
+          />
+          {mode === 'edit' && !imageFile && (
+            <p className="mt-1 text-xs text-gray-400">
+              Deixe em branco para manter a imagem atual.
+            </p>
+          )}
+        </div>
+
+        {/* Specs */}
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <label className="block text-sm font-medium text-gray-700">
+              Especificações Técnicas
+            </label>
+            <button
+              type="button"
+              onClick={addSpec}
+              className="text-xs font-medium text-brand-600 hover:text-brand-700"
+            >
+              + Adicionar
+            </button>
+          </div>
+          <div className="space-y-2">
+            {form.specs.map((spec, i) => (
+              <div key={i} className="flex gap-2">
+                <input
+                  type="text"
+                  value={spec.key}
+                  onChange={(e) => updateSpec(i, 'key', e.target.value)}
+                  placeholder="Chave (ex: Material)"
+                  className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 outline-none"
+                />
+                <input
+                  type="text"
+                  value={spec.value}
+                  onChange={(e) => updateSpec(i, 'value', e.target.value)}
+                  placeholder="Valor (ex: Aço Inox)"
+                  className="flex-[2] rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 outline-none"
+                />
+                <button
+                  type="button"
+                  onClick={() => removeSpec(i)}
+                  className="shrink-0 rounded-lg p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"
+                  title="Remover especificação"
+                >
+                  <svg
+                    className="h-4 w-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Actions */}
+      <div className="flex items-center gap-3 mt-8 pt-6 border-t border-gray-100">
+        <button
+          type="submit"
+          disabled={saving}
+          className="inline-flex items-center gap-2 rounded-lg bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-700 disabled:opacity-50 transition-colors shadow-sm"
+        >
+          {saving
+            ? 'Salvando...'
+            : mode === 'create'
+              ? 'Criar Produto'
+              : 'Salvar Alterações'}
+        </button>
+        <button
+          type="button"
+          onClick={() => router.push('/admin/produtos')}
+          className="rounded-lg px-5 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-100 transition-colors"
+        >
+          Cancelar
+        </button>
+      </div>
+    </form>
+  );
+}

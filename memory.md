@@ -1,73 +1,69 @@
-# Memory — Google OAuth Authentication
+# Memory — Auth Button Fix & Server-Side User Propagation
 
-Last updated: 2026-06-16
+Last updated: 2026-06-17
 
 ## What was built
 
-**Google OAuth authentication** using InsForge's SSR auth pattern. Sign-in via Google, user state shown in header, placeholder admin page at `/admin`.
+### Auth button visibility fix
 
-Files created this session:
+The "Entrar" (Sign In) button was appearing at all times regardless of auth state. The `AuthButton` component already had correct UI logic internally (Entrar when logged out, Admin link + Sair when logged in as admin), but the client-side `insforge.auth.getCurrentUser()` via `createBrowserClient` was not detecting the session.
 
-- `.env.local` — InsForge URL, anon key
-- `src/lib/insforge/client.ts` — `createBrowserClient()` for Client Components
-- `src/lib/insforge/server.ts` — `createServerClient()` for Server Components/Route Handlers
-- `src/lib/insforge/actions.ts` — Server Actions: `initiateOAuth('google')`, `signOut()`
-- `src/app/api/auth/callback/route.ts` — OAuth callback: exchange code, set cookies, redirect to `/admin`
-- `src/app/api/auth/refresh/route.ts` — `createRefreshAuthRouter()` for token refresh
-- `src/app/(auth)/sign-in/page.tsx` — Sign-in page with Google button, Suspense boundary, error states
-- `src/app/admin/page.tsx` — Admin placeholder showing user info + sign-out
-- `src/app/admin/SignOutButton.tsx` — Client sign-out form calling server action
-- `src/components/AuthButton.tsx` — Header widget: loading skeleton → signed-in avatar+name → "Entrar" button
-- `insforge.toml` — InsForge project config with allowed redirect URLs
+### Files modified
 
-Files modified this session:
+- **`src/app/layout.tsx`** — Converted to `async` server component. Now calls `createInsForgeServerClient().auth.getCurrentUser()` and passes `serverUser` to `HeaderSwitcher`.
+- **`src/components/HeaderSwitcher.tsx`** — Accepts `serverUser` prop, forwards it to both `Header` and `FigmaHeader`.
+- **`src/components/Header.tsx`** — Accepts `serverUser` prop, passes it to `AuthButton`.
+- **`src/components/FigmaHeader.tsx`** — Accepts `serverUser` prop, passes it to `AuthButton`.
+- **`src/components/AuthButton.tsx`** — Accepts optional `serverUser` prop. If provided (from SSR): uses it immediately (no loading flash). If not provided: falls back to original client-side `getCurrentUser()` fetch. The three UI states (Entrar / Admin+Sair / Skeleton) are unchanged.
 
-- `next.config.ts` — Removed `output: "export"` (auth needs server runtime); added `allowedDevOrigins` for mobile dev access
-- `src/lib/insforge/actions.ts` — Replaced hardcoded `NEXT_PUBLIC_APP_URL` with dynamic `Host` header for redirect URLs
-- `src/app/api/auth/callback/route.ts` — All redirects now use dynamic `Host` header instead of `request.url`
-- `src/components/Header.tsx` — Added `<AuthButton />` in CTA row
-- `src/components/FigmaHeader.tsx` — Added `<AuthButton />` in icon row
-- `package.json` — Added `@insforge/sdk` dependency
+### Previously built (from prior session)
+
+**Complete admin CRUD panel with InsForge backend:**
+
+- Database: `categories` and `products` tables with RLS policies (public SELECT, admin-only write)
+- Storage: `product-images` bucket (public read, admin-only write)
+- Admin pages: Dashboard, CRUD for categories and products with image upload and dynamic specs
+- Public pages updated to query InsForge DB directly
+- Old hardcoded data files (`products.ts`, `product-utils.ts`) deleted
 
 ## Decisions made
 
-- **SSR auth pattern**: `@insforge/sdk/ssr` with `createBrowserClient` + `createServerClient` + refresh route + OAuth callback route.
-- **Dedicated sign-in page**: `/sign-in` with Suspense boundary wrapping `useSearchParams` for error display.
-- **Post-sign-in redirect**: Always to `/admin` (placeholder, ready for future content management area).
-- **Shared AuthButton**: One component used in both `Header` and `FigmaHeader`, maintains dual-theme architecture.
-- **InsForge handles OAuth provider**: Google OAuth already enabled on InsForge backend.
-- **Dynamic redirect URLs via Host header**: Both `initiateOAuth` and callback route read the `Host` header from the request to build redirect URLs. This auto-adapts to any domain (localhost, LAN IP, production Vercel URL) without env vars. Also reads `x-forwarded-proto` for correct HTTP/HTTPS in production behind proxies.
-- **No middleware**: Skipped due to Next.js 15 type incompatibility; refresh route alone handles session renewal.
+- **Server-side auth for headers**: The root layout now fetches the user server-side and propagates it down as props. This is more reliable than client-side cookie reading and eliminates the auth state flash.
+- **Graceful fallback**: `AuthButton` still has its own client-side fetch as fallback for any edge case where `serverUser` isn't provided.
+- **No changes to auth flow**: The OAuth callback, refresh route, and server actions (`initiateOAuth`, `signOut`) were left untouched — they were already working correctly.
+- **Image storage**: All images in InsForge Storage bucket `product-images`. Both `image_key` and `image_url` stored on products.
+- **Authorization**: JWT-based RLS using `auth.jwt() -> 'app_metadata' ->> 'role' = 'admin'`. No separate roles table.
+- **Admin UI**: Sidebar layout, server-component list pages, client-component forms with image upload and dynamic specs.
+- **Specs**: JSONB column, rendered as dynamic key-value rows in the admin form.
 
 ## Problems solved
 
-- **`useSearchParams` build error**: Wrapped sign-in page in `<Suspense>` boundary.
-- **`user_metadata` vs `profile`**: InsForge user type uses `profile.name`, `profile.avatar_url`.
-- **`output: "export"` conflict**: Static export blocks API routes; removed since hosting on Vercel.
-- **`allowedRedirectUrls` requires full path**: Added `/api/auth/callback` path explicitly in `insforge.toml`.
-- **Mobile/phone cannot access dev server**: Three issues fixed:
-  1. `allowedDevOrigins` in `next.config.ts` doesn't support wildcards — used exact IPs with ports (`"192.168.100.4:3000"`)
-  2. `NEXT_PUBLIC_APP_URL=http://localhost:3000` hardcoded redirects to localhost — replaced with dynamic `Host` header
-  3. InsForge backend missing LAN IP in allowed redirect URLs — added via `insforge.toml` → `npx @insforge/cli config apply`
-- **Phone OAuth callback redirecting to localhost/admin**: Fixed by making callback route use `Host` header for all 3 redirect paths (success → `/admin`, errors → `/sign-in`).
+- **Auth button always showing "Entrar"**: Root cause was that `createBrowserClient` from `@insforge/sdk/ssr` relies on reading httpOnly cookies in the browser, which can be unreliable. The server-side `createServerClient` (already used in admin layout) reads cookies directly from the request and works reliably. Fixed by passing server-fetched user down through props.
+- Fixed import paths for nested admin route pages (../../ instead of ../)
+- Fixed lint errors: unused imports and props
+- Deleted old hardcoded data files that caused build errors
 
 ## Current state
 
-- **Build**: ✅ Passes — 35/35 pages compiled
-- **Auth flow**: ✅ Working end-to-end on both localhost and LAN IP (phone)
-- **Header**: AuthButton shows loading skeleton, signed-in avatar, or "Entrar" button
-- **Admin page**: Shows user info when signed in, "Acesso Restrito" with login link when not
-- **Sign-out**: Server action clears cookies, redirects to `/`
-- **Wi-Fi IP**: `192.168.100.4` — phone accesses via `http://192.168.100.4:3000`
+- Build passes ✅
+- Auth button now correctly shows:
+  - "Entrar" when not logged in
+  - Admin link + "Sair" when logged in as admin
+  - "Sair" only when logged in as non-admin
+- Admin CRUD pages: created but NOT yet tested in browser
+- Admin user: `deyvidyury@gmail.com` with `metadata.role = "admin"`
+- 5 categories and 20 products migrated to DB
+- Images still use Unsplash URLs (not yet migrated to InsForge Storage)
+- The admin role for the friend needs to be set when they create their account
 
 ## Next session starts with
 
-1. Build the actual admin content management area (products, categories CRUD)
-2. Add database tables + RLS policies for admin-only access
-3. Test auth flow with production Vercel URL after deployment
+- Test the auth fix: `npm run dev`, sign in with Google OAuth, verify "Entrar" disappears and admin link + "Sair" appears
+- Test the admin panel: CRUD categories and products
+- Migrate product images from Unsplash to InsForge Storage
+- Deploy to Vercel
 
 ## Open questions
 
-- Should the admin area use InsForge database directly or a custom API layer?
-- Should non-admin users see the "Entrar" button or be hidden entirely?
-- If Wi-Fi IP changes, `next.config.ts` and `insforge.toml` need updating (or remove those entries for dev simplicity)
+- Should the admin panel have additional features (order tracking, analytics)?
+- Do we need a public Storage bucket RLS policy for image uploads?

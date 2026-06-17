@@ -3,6 +3,7 @@ import Script from 'next/script';
 import './globals.css';
 import { HeaderSwitcher } from '@/components/HeaderSwitcher';
 import { FooterSwitcher } from '@/components/FooterSwitcher';
+import { createInsForgeServerClient } from '@/lib/insforge/server';
 
 export const metadata: Metadata = {
   title: {
@@ -24,11 +25,16 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  // Fetch user server-side so the header never flashes the wrong auth state
+  const insforge = await createInsForgeServerClient();
+  const { data } = await insforge.auth.getCurrentUser();
+  const serverUser = data?.user ?? null;
+
   return (
     <html lang="pt-BR">
       <head>
@@ -52,7 +58,7 @@ export default function RootLayout({
         />
       </head>
       <body className="flex min-h-screen flex-col">
-        <HeaderSwitcher />
+        <HeaderSwitcher serverUser={serverUser} />
         <main className="flex-1">{children}</main>
         <FooterSwitcher />
       </body>

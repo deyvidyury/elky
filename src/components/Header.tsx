@@ -4,7 +4,15 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { AuthButton } from '@/components/AuthButton';
 
-export function Header() {
+interface HeaderProps {
+  serverUser?: {
+    email?: string;
+    profile?: { name?: string | null; avatar_url?: string | null } | null;
+    metadata?: Record<string, unknown> | null;
+  } | null;
+}
+
+export function Header({ serverUser }: HeaderProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const navLinks = [
@@ -107,7 +115,7 @@ export function Header() {
               Ver Produtos
             </Link>
 
-            <AuthButton />
+            <AuthButton serverUser={serverUser} />
 
             {/* Mobile hamburger */}
             <button

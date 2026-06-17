@@ -4,7 +4,15 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { AuthButton } from '@/components/AuthButton';
 
-export function FigmaHeader() {
+interface FigmaHeaderProps {
+  serverUser?: {
+    email?: string;
+    profile?: { name?: string | null; avatar_url?: string | null } | null;
+    metadata?: Record<string, unknown> | null;
+  } | null;
+}
+
+export function FigmaHeader({ serverUser }: FigmaHeaderProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const navLinks = [
@@ -79,7 +87,7 @@ export function FigmaHeader() {
 
           {/* Auth + Search + Wishlist + Cart */}
           <div className="flex items-center gap-4">
-            <AuthButton />
+            <AuthButton serverUser={serverUser} />
 
             {/* Search */}
             <div className="hidden sm:flex items-center bg-[#f5f5f5] rounded-md px-3 py-2 gap-2">

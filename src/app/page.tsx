@@ -1,6 +1,6 @@
 import Link from 'next/link';
-import { CATEGORIES } from '@/lib/categories';
-import { getFeaturedProducts } from '@/lib/product-utils';
+import { createInsForgeServerClient } from '@/lib/insforge/server';
+import type { Category } from '@/lib/categories';
 import { ProductCard } from '@/components/ProductCard';
 import { AdUnit } from '@/components/AdUnit';
 
@@ -84,8 +84,35 @@ const trustBadges = [
   },
 ];
 
-export default function HomePage() {
-  const featured = getFeaturedProducts();
+export default async function HomePage() {
+  const insforge = await createInsForgeServerClient();
+
+  const { data: categories } = await insforge.database
+    .from('categories')
+    .select('*')
+    .order('name');
+
+  const { data: featured } = await insforge.database
+    .from('products')
+    .select('*, categories(id, name, slug)')
+    .eq('featured', true)
+    .order('name');
+
+  const allCategories = (categories ?? []) as Category[];
+  const featuredProducts = (featured ?? []) as Array<{
+    id: string;
+    slug: string;
+    name: string;
+    category_id: string;
+    price: string;
+    image_url: string;
+    image_key: string;
+    description: string;
+    specs: Record<string, string>;
+    supplier: string | null;
+    featured: boolean;
+    categories: { id: string; name: string; slug: string } | null;
+  }>;
 
   return (
     <>
@@ -168,7 +195,7 @@ export default function HomePage() {
             </p>
           </div>
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-5">
-            {CATEGORIES.map((cat) => (
+            {allCategories.map((cat) => (
               <Link
                 key={cat.slug}
                 href={`/categorias/${cat.slug}`}
@@ -219,7 +246,7 @@ export default function HomePage() {
             </p>
           </div>
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {featured.slice(0, 3).map((product) => (
+            {featuredProducts.slice(0, 3).map((product) => (
               <ProductCard key={product.slug} product={product} />
             ))}
           </div>
@@ -228,7 +255,7 @@ export default function HomePage() {
             <AdUnit slot="home-featured" />
           </div>
           <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {featured.slice(3).map((product) => (
+            {featuredProducts.slice(3).map((product) => (
               <ProductCard key={product.slug} product={product} />
             ))}
           </div>

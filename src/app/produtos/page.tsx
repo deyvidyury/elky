@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
-import { getAllProducts } from '@/lib/product-utils';
+import { createInsForgeServerClient } from '@/lib/insforge/server';
+import type { Category } from '@/lib/categories';
 import { ProductCard } from '@/components/ProductCard';
 import { AdUnit } from '@/components/AdUnit';
-import { CATEGORIES } from '@/lib/categories';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
@@ -11,8 +11,35 @@ export const metadata: Metadata = {
     'Confira nossa lista completa de suprimentos e equipamentos para restaurantes: limpeza, cozinha, refrigeração, lavagem e utensílios.',
 };
 
-export default function ProdutosPage() {
-  const allProducts = getAllProducts();
+export default async function ProdutosPage() {
+  const insforge = await createInsForgeServerClient();
+
+  const { data: allProducts } = await insforge.database
+    .from('products')
+    .select('*, categories(id, name, slug)')
+    .order('name');
+
+  const { data: categories } = await insforge.database
+    .from('categories')
+    .select('*')
+    .order('name');
+
+  const products = (allProducts ?? []) as Array<{
+    id: string;
+    slug: string;
+    name: string;
+    category_id: string;
+    price: string;
+    image_url: string;
+    image_key: string;
+    description: string;
+    specs: Record<string, string>;
+    supplier: string | null;
+    featured: boolean;
+    categories: { id: string; name: string; slug: string } | null;
+  }>;
+
+  const allCategories = (categories ?? []) as Category[];
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
@@ -30,8 +57,8 @@ export default function ProdutosPage() {
           Todos os Produtos
         </h1>
         <p className="mt-3 text-gray-500">
-          {allProducts.length} produtos para o seu restaurante — compare e
-          escolha com confiança.
+          {products.length} produtos para o seu restaurante — compare e escolha
+          com confiança.
         </p>
       </div>
 
@@ -43,7 +70,7 @@ export default function ProdutosPage() {
         >
           Todos
         </Link>
-        {CATEGORIES.map((cat) => (
+        {allCategories.map((cat) => (
           <Link
             key={cat.slug}
             href={`/categorias/${cat.slug}`}
@@ -56,7 +83,7 @@ export default function ProdutosPage() {
 
       {/* Product Grid */}
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {allProducts.slice(0, 4).map((product) => (
+        {products.slice(0, 4).map((product) => (
           <ProductCard key={product.slug} product={product} />
         ))}
       </div>
@@ -67,7 +94,7 @@ export default function ProdutosPage() {
       </div>
 
       <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {allProducts.slice(4, 8).map((product) => (
+        {products.slice(4, 8).map((product) => (
           <ProductCard key={product.slug} product={product} />
         ))}
       </div>
@@ -77,7 +104,7 @@ export default function ProdutosPage() {
       </div>
 
       <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {allProducts.slice(8).map((product) => (
+        {products.slice(8).map((product) => (
           <ProductCard key={product.slug} product={product} />
         ))}
       </div>

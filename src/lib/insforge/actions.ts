@@ -4,6 +4,9 @@ import { cookies, headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { createAuthActions } from '@insforge/sdk/ssr';
 
+const baseUrl = process.env.NEXT_PUBLIC_INSFORGE_URL!;
+const anonKey = process.env.NEXT_PUBLIC_INSFORGE_ANON_KEY!;
+
 async function getOrigin(): Promise<string> {
   const headersList = await headers();
   const host = headersList.get('host') || 'localhost:3000';
@@ -13,7 +16,11 @@ async function getOrigin(): Promise<string> {
 
 export async function initiateOAuth(provider: string) {
   const cookieStore = await cookies();
-  const auth = createAuthActions({ cookies: cookieStore });
+  const auth = createAuthActions({
+    baseUrl,
+    anonKey,
+    cookies: cookieStore,
+  });
 
   const origin = await getOrigin();
 
@@ -39,7 +46,11 @@ export async function initiateOAuth(provider: string) {
 
 export async function signOut() {
   const cookieStore = await cookies();
-  const auth = createAuthActions({ cookies: cookieStore });
+  const auth = createAuthActions({
+    baseUrl,
+    anonKey,
+    cookies: cookieStore,
+  });
   await auth.signOut();
   redirect('/');
 }

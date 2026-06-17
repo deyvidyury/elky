@@ -6,7 +6,9 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product }: ProductCardProps) {
-  const href = `/produtos/${product.category}/${product.slug}`;
+  const categorySlug = product.categories?.slug ?? '';
+  const categoryName = product.categories?.name ?? '';
+  const href = `/produtos/${categorySlug}/${product.slug}`;
 
   return (
     <Link
@@ -22,9 +24,11 @@ export function ProductCard({ product }: ProductCardProps) {
           </span>
         )}
         {/* Category badge */}
-        <span className="absolute top-3 right-3 z-10 inline-flex items-center rounded-full bg-white/90 backdrop-blur-sm px-2.5 py-0.5 text-xs font-medium text-gray-700 shadow-sm">
-          {product.category}
-        </span>
+        {categoryName && (
+          <span className="absolute top-3 right-3 z-10 inline-flex items-center rounded-full bg-white/90 backdrop-blur-sm px-2.5 py-0.5 text-xs font-medium text-gray-700 shadow-sm">
+            {categoryName}
+          </span>
+        )}
 
         {/* Fallback icon */}
         <div className="absolute inset-0 flex items-center justify-center text-gray-300">
@@ -42,9 +46,9 @@ export function ProductCard({ product }: ProductCardProps) {
             />
           </svg>
         </div>
-        {product.image && (
+        {product.image_url && (
           <img
-            src={product.image}
+            src={product.image_url}
             alt={product.name}
             className="absolute inset-0 h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
             loading="lazy"

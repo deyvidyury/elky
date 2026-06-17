@@ -66,7 +66,8 @@ export function FigmaProductCard({
   rating = 5,
   reviewCount = 88,
 }: FigmaProductCardProps) {
-  const href = `/produtos/${product.category}/${product.slug}`;
+  const categorySlug = product.categories?.slug ?? '';
+  const href = `/produtos/${categorySlug}/${product.slug}`;
   const originalPrice = discountPercent
     ? `R$ ${(parseFloat(product.price.replace('R$ ', '').replace(',', '.')) / (1 - discountPercent / 100)).toFixed(2).replace('.', ',')}`
     : undefined;
@@ -126,11 +127,9 @@ export function FigmaProductCard({
             </svg>
           </button>
         </div>
-
-        {/* Product image */}
-        {product.image && (
+        {product.image_url && (
           <img
-            src={product.image}
+            src={product.image_url}
             alt={product.name}
             className="absolute inset-0 h-full w-full object-contain p-6 group-hover:scale-105 transition-transform duration-300"
             loading="lazy"

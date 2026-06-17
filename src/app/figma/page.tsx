@@ -1,6 +1,6 @@
 import Link from 'next/link';
-import { CATEGORIES } from '@/lib/categories';
-import { getFeaturedProducts, getAllProducts } from '@/lib/product-utils';
+import { createInsForgeServerClient } from '@/lib/insforge/server';
+import type { Category } from '@/lib/categories';
 import { FigmaProductCard } from '@/components/FigmaProductCard';
 
 /** Red bar + label used as section eyebrow (e.g., "Today's", "This Month") */
@@ -98,9 +98,43 @@ const services = [
   },
 ];
 
-export default function FigmaHomePage() {
-  const featured = getFeaturedProducts();
-  const allProducts = getAllProducts();
+export default async function FigmaHomePage() {
+  const insforge = await createInsForgeServerClient();
+
+  const { data: categories } = await insforge.database
+    .from('categories')
+    .select('*')
+    .order('name');
+
+  const { data: featured } = await insforge.database
+    .from('products')
+    .select('*, categories(id, name, slug)')
+    .eq('featured', true)
+    .order('name')
+    .limit(4);
+
+  const { data: allProducts } = await insforge.database
+    .from('products')
+    .select('*, categories(id, name, slug)')
+    .order('name')
+    .limit(8);
+
+  const allCategories = (categories ?? []) as Category[];
+  const featuredProducts = (featured ?? []) as Array<{
+    id: string;
+    slug: string;
+    name: string;
+    category_id: string;
+    price: string;
+    image_url: string;
+    image_key: string;
+    description: string;
+    specs: Record<string, string>;
+    supplier: string | null;
+    featured: boolean;
+    categories: { id: string; name: string; slug: string } | null;
+  }>;
+  const products = (allProducts ?? []) as typeof featuredProducts;
 
   return (
     <>
@@ -112,7 +146,7 @@ export default function FigmaHomePage() {
           {/* Left sidebar — categories */}
           <aside className="hidden lg:flex flex-col gap-4 w-[217px] shrink-0 pt-2 border-r border-[rgba(0,0,0,0.1)] pr-4">
             {[
-              ...CATEGORIES.map((c) => ({
+              ...allCategories.map((c) => ({
                 label: c.name,
                 href: `/categorias/${c.slug}`,
                 hasSub: c.slug === 'cozinha' || c.slug === 'lavagem',
@@ -202,10 +236,10 @@ export default function FigmaHomePage() {
             {/* Hero image placeholder */}
             <div className="hidden md:block w-[496px] shrink-0">
               <div className="aspect-square bg-[#1a1a1a] flex items-center justify-center">
-                {featured[0]?.image ? (
+                {featuredProducts[0]?.image_url ? (
                   <img
-                    src={featured[0].image}
-                    alt={featured[0].name}
+                    src={featuredProducts[0].image_url}
+                    alt={featuredProducts[0].name}
                     className="h-full w-full object-cover"
                   />
                 ) : (
@@ -263,7 +297,7 @@ export default function FigmaHomePage() {
 
         {/* Product cards row */}
         <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-          {featured.slice(0, 5).map((product, i) => (
+          {featuredProducts.slice(0, 5).map((product, i) => (
             <FigmaProductCard
               key={product.slug}
               product={product}
@@ -333,7 +367,7 @@ export default function FigmaHomePage() {
         </div>
 
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
-          {CATEGORIES.map((cat) => (
+          {allCategories.map((cat) => (
             <Link
               key={cat.slug}
               href={`/categorias/${cat.slug}`}
@@ -373,7 +407,7 @@ export default function FigmaHomePage() {
         </div>
 
         <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-4">
-          {allProducts.slice(0, 4).map((product, i) => (
+          {products.slice(0, 4).map((product, i) => (
             <FigmaProductCard
               key={product.slug}
               product={product}
@@ -496,7 +530,7 @@ export default function FigmaHomePage() {
 
         {/* Product grid — 2 rows of 4 */}
         <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-4">
-          {allProducts.slice(0, 8).map((product, i) => (
+          {products.slice(0, 8).map((product, i) => (
             <FigmaProductCard
               key={product.slug}
               product={product}
@@ -531,9 +565,9 @@ export default function FigmaHomePage() {
           <div className="bg-[#2f2e30] rounded-[4px] overflow-hidden relative min-h-[600px] flex flex-col justify-end p-8">
             {/* Product image placeholder */}
             <div className="absolute inset-0 flex items-center justify-center">
-              {allProducts[0]?.image ? (
+              {products[0]?.image_url ? (
                 <img
-                  src={allProducts[0].image}
+                  src={products[0].image_url}
                   alt=""
                   className="h-full w-full object-cover opacity-60"
                 />
@@ -543,16 +577,16 @@ export default function FigmaHomePage() {
             </div>
             <div className="relative z-10">
               <h3 className="text-2xl font-semibold text-[#fafafa]">
-                {allProducts[0]?.name || 'Produto em Destaque'}
+                {products[0]?.name || 'Produto em Destaque'}
               </h3>
               <p className="text-sm text-[rgba(250,250,250,0.6)] mt-3 max-w-[300px] leading-relaxed">
-                {allProducts[0]?.description ||
+                {products[0]?.description ||
                   'Confira nossa seleção de produtos mais recentes.'}
               </p>
               <Link
                 href={
-                  allProducts[0]
-                    ? `/produtos/${allProducts[0].category}/${allProducts[0].slug}`
+                  products[0]
+                    ? `/produtos/${products[0].categories?.slug}/${products[0].slug}`
                     : '/produtos'
                 }
                 className="inline-flex items-center gap-1 mt-6 text-sm font-medium text-[#fafafa] group"
@@ -570,9 +604,9 @@ export default function FigmaHomePage() {
             {/* Top right */}
             <div className="bg-[#2f2e30] rounded-[4px] overflow-hidden relative flex items-center p-8 min-h-[284px]">
               <div className="absolute right-0 top-0 bottom-0 w-[55%] flex items-center justify-center">
-                {allProducts[1]?.image ? (
+                {products[1]?.image_url ? (
                   <img
-                    src={allProducts[1].image}
+                    src={products[1].image_url}
                     alt=""
                     className="h-full w-full object-cover opacity-60"
                   />
@@ -582,15 +616,15 @@ export default function FigmaHomePage() {
               </div>
               <div className="relative z-10 max-w-[55%]">
                 <h3 className="text-2xl font-semibold text-[#fafafa]">
-                  {allProducts[1]?.name || 'Coleções'}
+                  {products[1]?.name || 'Coleções'}
                 </h3>
                 <p className="text-sm text-[rgba(250,250,250,0.6)] mt-2 leading-relaxed">
                   Produtos selecionados que trazem outro nível ao seu negócio.
                 </p>
                 <Link
                   href={
-                    allProducts[1]
-                      ? `/produtos/${allProducts[1].category}/${allProducts[1].slug}`
+                    products[1]
+                      ? `/produtos/${products[1].categories?.slug}/${products[1].slug}`
                       : '/produtos'
                   }
                   className="inline-flex items-center gap-1 mt-4 text-sm font-medium text-[#fafafa] group"

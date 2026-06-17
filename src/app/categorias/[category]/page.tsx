@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { CATEGORY_SLUGS, getCategoryBySlug } from '@/lib/categories';
-import { getProductsByCategory } from '@/lib/product-utils';
+import { createInsForgeServerClient } from '@/lib/insforge/server';
 import { ProductCard } from '@/components/ProductCard';
 import { AdUnit } from '@/components/AdUnit';
 import Link from 'next/link';
@@ -10,32 +9,68 @@ interface CategoryPageProps {
   params: Promise<{ category: string }>;
 }
 
-export async function generateStaticParams() {
-  return CATEGORY_SLUGS.map((slug) => ({ category: slug }));
-}
-
 export async function generateMetadata({
   params,
 }: CategoryPageProps): Promise<Metadata> {
   const { category } = await params;
-  const cat = getCategoryBySlug(category);
+  const insforge = await createInsForgeServerClient();
+
+  const { data: cat } = await insforge.database
+    .from('categories')
+    .select('*')
+    .eq('slug', category)
+    .single();
+
   if (!cat) return { title: 'Categoria não encontrada' };
 
   return {
-    title: `${cat.name} — Suprimentos para Restaurantes`,
-    description: cat.description,
+    title: `${(cat as { name: string }).name} — Suprimentos para Restaurantes`,
+    description: (cat as { description: string }).description,
   };
 }
 
 export default async function CategoriaPage({ params }: CategoryPageProps) {
   const { category } = await params;
-  const cat = getCategoryBySlug(category);
+  const insforge = await createInsForgeServerClient();
+
+  const { data: cat } = await insforge.database
+    .from('categories')
+    .select('*')
+    .eq('slug', category)
+    .single();
 
   if (!cat) {
     notFound();
   }
 
-  const catProducts = getProductsByCategory(cat.slug);
+  const c = cat as {
+    id: string;
+    slug: string;
+    name: string;
+    description: string;
+    icon: string;
+  };
+
+  const { data: catProducts } = await insforge.database
+    .from('products')
+    .select('*, categories(id, name, slug)')
+    .eq('category_id', c.id)
+    .order('name');
+
+  const products = (catProducts ?? []) as Array<{
+    id: string;
+    slug: string;
+    name: string;
+    category_id: string;
+    price: string;
+    image_url: string;
+    image_key: string;
+    description: string;
+    specs: Record<string, string>;
+    supplier: string | null;
+    featured: boolean;
+    categories: { id: string; name: string; slug: string } | null;
+  }>;
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
@@ -57,40 +92,38 @@ export default async function CategoriaPage({ params }: CategoryPageProps) {
 
       <div className="flex items-center gap-5 mb-10">
         <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl bg-brand-50 text-4xl">
-          {cat.icon}
+          {c.icon}
         </div>
         <div>
           <h1 className="font-display text-3xl font-bold text-gray-900 sm:text-4xl">
-            {cat.name}
+            {c.name}
           </h1>
-          <p className="mt-2 text-gray-500 max-w-xl">{cat.description}</p>
+          <p className="mt-2 text-gray-500 max-w-xl">{c.description}</p>
         </div>
       </div>
 
       <p className="text-sm text-gray-500 mb-8">
-        <span className="font-semibold text-brand-700">
-          {catProducts.length}
-        </span>{' '}
-        produto{catProducts.length !== 1 ? 's' : ''} encontrado
-        {catProducts.length !== 1 ? 's' : ''} nesta categoria.
+        <span className="font-semibold text-brand-700">{products.length}</span>{' '}
+        produto{products.length !== 1 ? 's' : ''} encontrado
+        {products.length !== 1 ? 's' : ''} nesta categoria.
       </p>
 
       {/* Product Grid */}
-      {catProducts.length > 0 ? (
+      {products.length > 0 ? (
         <>
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {catProducts.slice(0, 4).map((product) => (
+            {products.slice(0, 4).map((product) => (
               <ProductCard key={product.slug} product={product} />
             ))}
           </div>
 
-          {catProducts.length > 4 && (
+          {products.length > 4 && (
             <>
               <div className="mt-8">
-                <AdUnit slot={`categoria-${cat.slug}`} />
+                <AdUnit slot={`categoria-${c.slug}`} />
               </div>
               <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                {catProducts.slice(4).map((product) => (
+                {products.slice(4).map((product) => (
                   <ProductCard key={product.slug} product={product} />
                 ))}
               </div>
