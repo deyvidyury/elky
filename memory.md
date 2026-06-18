@@ -1,76 +1,60 @@
-# Memory — Admin Mobile Responsiveness & Sidebar
+# Memory — Dual Frontend Architecture Planning & Project Scaffolding
 
 Last updated: 2026-06-17
 
 ## What was built
 
-### Admin mobile sidebar (new component)
+### Context files created (from scratch)
 
-- **`src/components/AdminSidebar.tsx`** — Client component replacing the inline sidebar in the admin layout. Mobile: fixed top bar with hamburger, sidebar slides in as overlay with backdrop. Auto-closes on route change, Escape key, or backdrop tap. Body scroll locked while open. Desktop: static sidebar unchanged. Active nav item highlighted.
+- **`context/build-plan.md`** — 5-phase implementation plan for dual frontend architecture (shared data core, main route group, figma layout cleanup, transition links, figma secondary pages)
+- **`context/progress-tracker.md`** — 28 tasks across 5 phases, all currently ⬜
+- **`context/project-overview.md`** — Project description, problem solved, all pages, user flows, features in/out of scope, DB schema summary
+- **`context/architecture.md`** — Stack, full folder structure (including planned figma routes), system boundaries, data flow diagrams, InsForge schema
+- **`context/code-standards.md`** — TypeScript rules, Next.js 15 conventions, file naming, component structure order, InsForge SDK patterns, styling rules
+- **`context/ui-registry.md`** — All 10 existing components documented with exact classes, file paths, and design system affiliation
+- **`context/ui-rules.md`** — Both design systems documented side-by-side (main brand + figma): layout, hero, cards, buttons, fonts, breakpoints, do-nots
+- **`context/ui-tokens.md`** — Complete color tokens from globals.css with usage guides for both design systems
+- **`context/library-docs.md`** — InsForge SDK patterns, Next.js 15 patterns, Tailwind v4 config specific to this project
 
-### Layout refactor
+### AGENTS.md updated
 
-- **`src/app/admin/layout.tsx`** — Stripped to server-side auth check only, delegates all UI to `AdminSidebar`. Fixed `isAdmin` to boolean (was `boolean | null`).
-- **`src/components/HeaderSwitcher.tsx`** — Returns `null` on `/admin` routes so the main site header does not render on admin pages.
-- **`src/components/FooterSwitcher.tsx`** — Returns `null` on `/admin` routes.
-
-### Mobile fixes across the project
-
-- **`src/components/AuthButton.tsx`** — Removed `hidden sm:` from the Admin link. Now visible on all screen sizes.
-- **`src/app/admin/produtos/page.tsx`** — Table wrapper: `overflow-hidden` -> `overflow-x-auto` for horizontal scroll.
-- **`src/app/admin/categorias/page.tsx`** — Same table fix.
-- **`AGENTS.md`** — Updated Tailwind CSS guidance from v3.4 to v4 with `@tailwindcss/postcss`.
-
-### Previously built (from prior sessions)
-
-**Auth fix:** Root layout fetches user server-side via `createInsForgeServerClient()` and propagates `serverUser` through `HeaderSwitcher` -> `Header`/`FigmaHeader` -> `AuthButton`. Auth button no longer flashes wrong state.
-
-**Complete admin CRUD panel with InsForge backend:**
-
-- Database: `categories` and `products` tables with RLS policies (public SELECT, admin-only write)
-- Storage: `product-images` bucket (public read, admin-only write)
-- Admin pages: Dashboard, CRUD for categories and products with image upload and dynamic specs
-- Public pages updated to query InsForge DB directly
-- Old hardcoded data files deleted
+- Added Next.js agent rules block
+- Added context file reading order (9 files)
+- Added immutable rules (no hardcoded colors, update tracker/registry, use skills, /recover)
+- Added available skills list
+- Preserved existing InsForge SDK documentation
 
 ## Decisions made
 
-- **Server-side auth for headers**: Root layout fetches user server-side, propagates as props. More reliable than client-side cookie reading.
-- **Admin sidebar as client component**: Uses `useState` for open/close, `usePathname` for route-aware auto-close.
-- **Main header/footer hidden on admin routes**: Via pathname check in switchers returning `null` for `/admin*`. Cleaner than z-index hacks.
-- **Sidebar animation**: `fixed` + `translate-x` transition on mobile, `static` on desktop. No layout shift.
-- **Authorization**: JWT-based RLS using `auth.jwt() -> 'app_metadata' ->> 'role' = 'admin'`.
-- **Tailwind v4 confirmed**: Project uses Tailwind CSS v4 with `@tailwindcss/postcss`.
+- **Route groups over separate projects**: Use `(main)/` and keep `/figma/*` — no monorepo, no duplicate configs, URLs unchanged
+- **Shared data layer**: `lib/data.ts` with `getCategories()`, `getFeaturedProducts()`, `getAllProducts()` — both frontends import from here
+- **Layout per frontend**: Each route group gets its own layout rendering the correct header/footer. `HeaderSwitcher`/`FooterSwitcher` to be deleted
+- **Footer transition links**: Subtle "Ver design alternativo" / "Ver design principal" links in each footer, not in main nav
+- **Full page parity**: Every page in one frontend must exist in the other — products, categories, product detail, static pages (sobre, contato, politica, termos)
+- **Phase-by-phase build**: 5 sequential phases, each verified with `npm run build` before proceeding
 
 ## Problems solved
 
-- **Admin sidebar invisible on mobile**: Original layout had static `w-64` sidebar with no collapse. Created `AdminSidebar` with hamburger drawer.
-- **Main site header covering admin mobile bar**: Header had `sticky top-0 z-50`, admin bar had `z-30`. Fixed by hiding header on admin routes via `HeaderSwitcher`.
-- **Admin button hidden on mobile**: `AuthButton` had `hidden sm:inline-flex` on the admin link.
-- **TypeScript error**: `isAdmin` was `boolean | null`, `AdminSidebar` expected `boolean`. Fixed with `!!()`.
-- **Table overflow on mobile**: Tables now have `overflow-x-auto`.
-- **Auth button always showing "Entrar"** (prior session): `createBrowserClient` unreliable for cookie reading. Fixed with server-side fetch.
+- Clarified that "static" figma page isn't actually static — it already fetches from InsForge, just feature-incomplete
+- Resolved "two separated projects" vs "route groups" — chose route groups to avoid monorepo overhead
+- Identified exact pages needed for figma frontend parity: produtos listing, category filter, product detail, 4 static pages
 
 ## Current state
 
-- Build passes ✅
-- Admin fully responsive: hamburger drawer on mobile, static sidebar on desktop
-- Mobile admin top bar: hamburger (left), "Admin" title (center), home icon (right)
-- Auth button shows "Admin" link on all screen sizes when logged in as admin
-- Tables scroll horizontally on narrow screens
-- Admin CRUD pages built but NOT yet tested in browser
+- Build passes ✅ (no code changes made yet)
+- All 9 context files exist and are populated
+- `AGENTS.md` updated with project rules
+- Admin CRUD still not tested in browser
+- 5 categories, 20 products in DB; images on Unsplash URLs
 - Admin user: `deyvidyury@gmail.com` with `metadata.role = "admin"`
-- 5 categories, 20 products in DB; images still on Unsplash URLs
 
 ## Next session starts with
 
-- `npm run dev`, sign in with Google OAuth, verify: admin button on home page, navigate to /admin, test sidebar toggle on mobile
-- Test admin CRUD end-to-end (create/edit/delete categories and products)
-- Migrate product images from Unsplash to InsForge Storage
-- Deploy to Vercel
+1. Run `/remember restore`
+2. Read `context/build-plan.md` and `context/progress-tracker.md`
+3. Start Phase 1 — create `src/lib/data.ts` with shared data-fetching functions, update both homepage pages to use them
+4. Verify with `npm run build`
 
 ## Open questions
 
-- Should the admin panel have additional features (order tracking, analytics)?
-- Do we need a public Storage bucket RLS policy for image uploads?
-- Admin role assignment for the friend's account when they create it
+- None from this session — all architectural decisions resolved
