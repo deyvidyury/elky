@@ -142,6 +142,12 @@ export function FigmaFooter() {
             &copy; {new Date().getFullYear()} Guia de Suprimentos para
             Restaurantes. Todos os direitos reservados.
           </p>
+          <Link
+            href="/"
+            className="inline-block mt-2 text-xs text-[rgba(250,250,250,0.4)] hover:text-[#db4444] transition-colors"
+          >
+            Ver design principal
+          </Link>
         </div>
       </div>
     </footer>

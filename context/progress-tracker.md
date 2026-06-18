@@ -46,13 +46,13 @@ Last updated: 2026-06-17
 | 3.3 | Delete `FooterSwitcher.tsx`                                              | ✅     |
 | 3.4 | Verify: `npm run build` — /figma renders with correct header/footer      | ✅     |
 
-## Phase 4 — Transition Links ⬜
+## Phase 4 — Transition Links ✅
 
 | #   | Task                                                    | Status |
 | --- | ------------------------------------------------------- | ------ |
-| 4.1 | Add "Ver design alternativo" → `/figma` in `Footer.tsx` | ⬜     |
-| 4.2 | Add "Ver design principal" → `/` in `FigmaFooter.tsx`   | ⬜     |
-| 4.3 | Verify: navigate between frontends via footer           | ⬜     |
+| 4.1 | Add "Ver design alternativo" → `/figma` in `Footer.tsx` | ✅     |
+| 4.2 | Add "Ver design principal" → `/` in `FigmaFooter.tsx`   | ✅     |
+| 4.3 | Verify: navigate between frontends via footer           | ✅     |
 
 ## Phase 5 — Figma Secondary Pages ⬜
 

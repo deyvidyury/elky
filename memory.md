@@ -1,38 +1,36 @@
-# Memory — Phase 3 Complete: Figma Layout Cleanup
+# Memory — Phase 4 Complete: Transition Links + Commit Fix
 
 Last updated: 2026-06-18
 
 ## What was built
 
-- **Updated `src/app/figma/layout.tsx`** — Now fetches user server-side and renders `FigmaHeader` + `<main>` + `FigmaFooter`, mirroring the `(main)/layout.tsx` pattern exactly.
-- **Deleted `HeaderSwitcher.tsx`** — No longer imported anywhere. Each route group now owns its own header.
-- **Deleted `FooterSwitcher.tsx`** — Same reason, no longer needed.
+- **Fixed commit message** — amended last commit from "phase 4" to "phase 3" (now `4508a2a`). Not yet pushed to remote.
+- **Updated `src/components/Footer.tsx`** — Added "Ver design alternativo" link to `/figma` in the bottom bar, separated by a dot from the cookie/privacy notice.
+- **Updated `src/components/FigmaFooter.tsx`** — Added "Ver design principal" link to `/` below the copyright line.
+- **Updated `context/progress-tracker.md`** — Phase 4 marked complete.
 
 ## Decisions made
 
-- Figma layout now does server-side auth fetching the same way main layout does — consistent pattern across route groups
-- No more switcher components in the project — each route group layout is self-contained
+- Transition links are placed subtly in the footer bottom bar — not in main navigation, as specified in build plan.
+- Links are styled to match each footer's design system (main: `text-gray-500 hover:text-accent-300`, figma: `text-[rgba(250,250,250,0.4)] hover:text-[#db4444]`).
 
 ## Problems solved
 
-- None encountered — straightforward layout update and file deletion
+- None encountered — straightforward additions.
 
 ## Current state
 
 - Phase 1 ✅ — Shared data core
 - Phase 2 ✅ — Main route group
-- Phase 3 ✅ — Figma layout cleanup (build passes, 18/18 pages)
-- Phase 4–5 still ⬜ (11 tasks remaining)
-- All three route group layouts are now clean:
-  - Root layout: pure HTML shell
-  - `(main)/layout.tsx`: Header + children + Footer (with serverUser)
-  - `figma/layout.tsx`: FigmaHeader + children + FigmaFooter (with serverUser)
-  - `admin/layout.tsx`: AdminSidebar + children (auth guard)
+- Phase 3 ✅ — Figma layout cleanup
+- Phase 4 ✅ — Transition links (build passes, 18/18 pages)
+- Phase 5 ⬜ — Figma Secondary Pages (8 tasks remaining)
+- Commits not yet pushed to origin/main
 
 ## Next session starts with
 
 1. Run `/remember restore`
-2. Phase 4 — Transition Links: add "Ver design alternativo" link in Footer.tsx, "Ver design principal" link in FigmaFooter.tsx
+2. Phase 5 — Figma Secondary Pages: 7 pages to create under `/figma/` (produtos listing, category filter, product detail, sobre, contato, política de privacidade, termos de uso), each using Figma design system components
 
 ## Open questions
 

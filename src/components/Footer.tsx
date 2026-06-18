@@ -177,17 +177,26 @@ export function Footer() {
               &copy; {new Date().getFullYear()} Guia de Suprimentos para
               Restaurantes. Todos os direitos reservados.
             </p>
-            <p className="text-xs text-gray-500">
-              Este site utiliza cookies e exibe anúncios. Ao navegar, você
-              concorda com nossa{' '}
+            <div className="flex items-center gap-3">
               <Link
-                href="/politica-de-privacidade"
-                className="underline hover:text-accent-300 transition-colors"
+                href="/figma"
+                className="text-xs text-gray-500 hover:text-accent-300 transition-colors"
               >
-                Política de Privacidade
+                Ver design alternativo
               </Link>
-              .
-            </p>
+              <span className="text-gray-600">·</span>
+              <p className="text-xs text-gray-500">
+                Este site utiliza cookies e exibe anúncios. Ao navegar, você
+                concorda com nossa{' '}
+                <Link
+                  href="/politica-de-privacidade"
+                  className="underline hover:text-accent-300 transition-colors"
+                >
+                  Política de Privacidade
+                </Link>
+                .
+              </p>
+            </div>
           </div>
         </div>
       </div>
