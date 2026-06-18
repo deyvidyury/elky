@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
+import { Breadcrumb } from '@/components/Breadcrumb';
 
 export const metadata: Metadata = {
   title: 'Sobre',
@@ -10,23 +10,22 @@ export const metadata: Metadata = {
 export default function FigmaSobrePage() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6">
-      {/* Breadcrumb */}
-      <nav className="mb-8 text-sm text-[rgba(0,0,0,0.5)]">
-        <Link href="/figma" className="hover:text-[#db4444] transition-colors">
-          Início
-        </Link>
-        <span className="mx-2">/</span>
-        <span className="font-semibold text-[#2f2e30]">Sobre</span>
-      </nav>
+      <Breadcrumb
+        variant="figma"
+        items={[
+          { label: 'Início', href: '/figma' },
+          { label: 'Sobre', href: '#' },
+        ]}
+      />
 
-      <h1 className="text-3xl lg:text-4xl font-semibold text-[#2f2e30] tracking-[0.04em]">
+      <h1 className="text-3xl lg:text-4xl font-semibold text-figma-dark tracking-[0.04em]">
         Sobre o Guia de Suprimentos
       </h1>
 
-      <div className="mt-8 space-y-6 leading-relaxed text-[rgba(0,0,0,0.6)]">
+      <div className="mt-8 space-y-6 leading-relaxed text-figma-text-secondary">
         <p>
           Bem-vindo ao{' '}
-          <strong className="text-[#2f2e30]">
+          <strong className="text-figma-dark">
             Guia de Suprimentos para Restaurantes
           </strong>
           ! Somos um portal independente dedicado a ajudar donos de
@@ -35,10 +34,10 @@ export default function FigmaSobrePage() {
           seu negócio.
         </p>
 
-        <div className="rounded-[4px] border border-[#db4444]/20 bg-[#db4444]/5 p-6">
-          <h2 className="text-xl font-semibold text-[#2f2e30] flex items-center gap-2">
+        <div className="rounded-[4px] border border-figma-red/20 bg-figma-red/5 p-6">
+          <h2 className="text-xl font-semibold text-figma-dark flex items-center gap-2">
             <svg
-              className="h-6 w-6 text-[#db4444]"
+              className="h-6 w-6 text-figma-red"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -66,7 +65,7 @@ export default function FigmaSobrePage() {
           </p>
         </div>
 
-        <h2 className="text-xl font-semibold text-[#2f2e30]">
+        <h2 className="text-xl font-semibold text-figma-dark">
           O Que Oferecemos
         </h2>
         <ul className="list-disc pl-6 space-y-3">
@@ -89,16 +88,16 @@ export default function FigmaSobrePage() {
             },
           ].map((item) => (
             <li key={item.title}>
-              <strong className="text-[#2f2e30]">{item.title}:</strong>{' '}
+              <strong className="text-figma-dark">{item.title}:</strong>{' '}
               {item.desc}
             </li>
           ))}
         </ul>
 
-        <div className="rounded-[4px] border border-[rgba(0,0,0,0.1)] bg-[#f5f5f5] p-6">
-          <h2 className="text-xl font-semibold text-[#2f2e30] flex items-center gap-2">
+        <div className="rounded-[4px] border border-figma-border bg-figma-bg-secondary p-6">
+          <h2 className="text-xl font-semibold text-figma-dark flex items-center gap-2">
             <svg
-              className="h-6 w-6 text-[#db4444]"
+              className="h-6 w-6 text-figma-red"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -120,10 +119,10 @@ export default function FigmaSobrePage() {
           </p>
         </div>
 
-        <div className="rounded-[4px] border border-[rgba(0,0,0,0.1)] bg-[#f5f5f5] p-6">
-          <h2 className="text-xl font-semibold text-[#2f2e30] flex items-center gap-2">
+        <div className="rounded-[4px] border border-figma-border bg-figma-bg-secondary p-6">
+          <h2 className="text-xl font-semibold text-figma-dark flex items-center gap-2">
             <svg
-              className="h-6 w-6 text-[#db4444]"
+              className="h-6 w-6 text-figma-red"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -147,7 +146,7 @@ export default function FigmaSobrePage() {
             ].map((item) => (
               <li key={item} className="flex items-start gap-2">
                 <svg
-                  className="h-5 w-5 mt-0.5 text-[#db4444] shrink-0"
+                  className="h-5 w-5 mt-0.5 text-figma-red shrink-0"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"

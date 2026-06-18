@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
+import { Breadcrumb } from '@/components/Breadcrumb';
 
 export const metadata: Metadata = {
   title: 'Termos de Uso',
@@ -9,25 +9,24 @@ export const metadata: Metadata = {
 export default function FigmaTermosPage() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6">
-      {/* Breadcrumb */}
-      <nav className="mb-8 text-sm text-[rgba(0,0,0,0.5)]">
-        <Link href="/figma" className="hover:text-[#db4444] transition-colors">
-          Início
-        </Link>
-        <span className="mx-2">/</span>
-        <span className="font-semibold text-[#2f2e30]">Termos de Uso</span>
-      </nav>
+      <Breadcrumb
+        variant="figma"
+        items={[
+          { label: 'Início', href: '/figma' },
+          { label: 'Termos de Uso', href: '#' },
+        ]}
+      />
 
-      <h1 className="text-3xl lg:text-4xl font-semibold text-[#2f2e30] tracking-[0.04em]">
+      <h1 className="text-3xl lg:text-4xl font-semibold text-figma-dark tracking-[0.04em]">
         Termos de Uso
       </h1>
-      <p className="mt-3 text-sm text-[rgba(0,0,0,0.5)]">
+      <p className="mt-3 text-sm text-figma-text-muted">
         Última atualização: Junho de 2026
       </p>
 
-      <div className="mt-8 space-y-8 leading-relaxed text-[rgba(0,0,0,0.6)]">
+      <div className="mt-8 space-y-8 leading-relaxed text-figma-text-secondary">
         <section>
-          <h2 className="text-xl font-semibold text-[#2f2e30]">
+          <h2 className="text-xl font-semibold text-figma-dark">
             1. Aceitação dos Termos
           </h2>
           <p className="mt-2">
@@ -39,7 +38,7 @@ export default function FigmaTermosPage() {
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold text-[#2f2e30]">
+          <h2 className="text-xl font-semibold text-figma-dark">
             2. Natureza do Conteúdo
           </h2>
           <p className="mt-2">
@@ -52,7 +51,7 @@ export default function FigmaTermosPage() {
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold text-[#2f2e30]">
+          <h2 className="text-xl font-semibold text-figma-dark">
             3. Precisão das Informações
           </h2>
           <p className="mt-2">
@@ -65,7 +64,7 @@ export default function FigmaTermosPage() {
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold text-[#2f2e30]">
+          <h2 className="text-xl font-semibold text-figma-dark">
             4. Propriedade Intelectual
           </h2>
           <p className="mt-2">
@@ -76,7 +75,7 @@ export default function FigmaTermosPage() {
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold text-[#2f2e30]">
+          <h2 className="text-xl font-semibold text-figma-dark">
             5. Links para Terceiros
           </h2>
           <p className="mt-2">
@@ -87,7 +86,7 @@ export default function FigmaTermosPage() {
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold text-[#2f2e30]">
+          <h2 className="text-xl font-semibold text-figma-dark">
             6. Limitação de Responsabilidade
           </h2>
           <p className="mt-2">
@@ -98,7 +97,7 @@ export default function FigmaTermosPage() {
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold text-[#2f2e30]">
+          <h2 className="text-xl font-semibold text-figma-dark">
             7. Alterações nos Termos
           </h2>
           <p className="mt-2">
@@ -110,7 +109,7 @@ export default function FigmaTermosPage() {
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold text-[#2f2e30]">
+          <h2 className="text-xl font-semibold text-figma-dark">
             8. Lei Aplicável
           </h2>
           <p className="mt-2">
@@ -122,12 +121,12 @@ export default function FigmaTermosPage() {
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold text-[#2f2e30]">9. Contato</h2>
+          <h2 className="text-xl font-semibold text-figma-dark">9. Contato</h2>
           <p className="mt-2">
             Para dúvidas sobre estes Termos de Uso, entre em contato pelo e-mail{' '}
             <a
               href="mailto:contato@guiadesuprimentos.com.br"
-              className="text-[#db4444] hover:text-[#e07575] underline transition-colors"
+              className="text-figma-red hover:text-figma-red-hover underline transition-colors"
             >
               contato@guiadesuprimentos.com.br
             </a>

@@ -1,8 +1,28 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { createInsForgeServerClient } from '@/lib/insforge/server';
+import { getProductBySlug, getProductsByCategory } from '@/lib/data';
 import { FigmaProductCard } from '@/components/FigmaProductCard';
+
+/** Format a "discounted" price for visual display */
+function formatDiscountedPrice(price: string, discountPercent: number): string {
+  const numeric = parseFloat(price.replace(/[^\d,]/g, '').replace(',', '.'));
+  if (isNaN(numeric)) return '';
+  const original = numeric / (1 - discountPercent / 100);
+  return `R$ ${original.toFixed(2).replace('.', ',')}`;
+}
+
+/** Deterministic pseudo-random rating based on product name */
+function ratingFromName(name: string): { rating: number; reviewCount: number } {
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = (hash << 5) - hash + name.charCodeAt(i);
+    hash |= 0;
+  }
+  const rating = 3.5 + Math.abs(hash % 16) / 10;
+  const reviewCount = 10 + Math.abs(hash % 191);
+  return { rating: Math.round(rating * 10) / 10, reviewCount };
+}
 
 interface ProductPageProps {
   params: Promise<{ category: string; slug: string }>;
@@ -12,25 +32,18 @@ export async function generateMetadata({
   params,
 }: ProductPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const insforge = await createInsForgeServerClient();
-
-  const { data: product } = await insforge.database
-    .from('products')
-    .select('*, categories(id, name, slug)')
-    .eq('slug', slug)
-    .single();
+  const product = await getProductBySlug(slug);
 
   if (!product) return { title: 'Produto não encontrado' };
 
-  const p = product as Record<string, unknown>;
-  const desc = String(p.description ?? '').slice(0, 160);
-  const imageUrl = String(p.image_url ?? '');
+  const desc = product.description.slice(0, 160);
+  const imageUrl = product.image_url;
 
   return {
-    title: `${p.name} — ${p.price}`,
+    title: `${product.name} — ${product.price}`,
     description: desc,
     openGraph: {
-      title: String(p.name),
+      title: product.name,
       description: desc,
       images: imageUrl ? [imageUrl] : [],
     },
@@ -39,57 +52,32 @@ export async function generateMetadata({
 
 export default async function FigmaProductPage({ params }: ProductPageProps) {
   const { slug } = await params;
-  const insforge = await createInsForgeServerClient();
 
-  const { data: product } = await insforge.database
-    .from('products')
-    .select('*, categories(id, name, slug)')
-    .eq('slug', slug)
-    .single();
+  const product = await getProductBySlug(slug);
 
   if (!product) {
     notFound();
   }
 
-  const p = product as {
-    id: string;
-    slug: string;
-    name: string;
-    category_id: string;
-    price: string;
-    image_url: string;
-    image_key: string;
-    description: string;
-    specs: Record<string, string>;
-    supplier: string | null;
-    featured: boolean;
-    categories: { id: string; name: string; slug: string } | null;
-  };
-
-  const categoryName = p.categories?.name ?? '';
-  const categorySlug = p.categories?.slug ?? '';
+  const categoryName = product.categories?.name ?? '';
+  const categorySlug = product.categories?.slug ?? '';
 
   // Related products (same category, excluding current)
-  const { data: related } = await insforge.database
-    .from('products')
-    .select('*, categories(id, name, slug)')
-    .eq('category_id', p.category_id)
-    .neq('id', p.id)
-    .limit(4)
-    .order('name');
-
-  const relatedProducts = (related ?? []) as (typeof p)[];
+  const relatedProducts = await getProductsByCategory(product.category_id);
+  const filtered = relatedProducts
+    .filter((rp) => rp.id !== product.id)
+    .slice(0, 4);
 
   // JSON-LD structured data
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Product',
-    name: p.name,
-    description: p.description,
-    image: p.image_url,
+    name: product.name,
+    description: product.description,
+    image: product.image_url,
     offers: {
       '@type': 'Offer',
-      price: p.price.replace(/\D/g, ''),
+      price: product.price.replace(/\D/g, ''),
       priceCurrency: 'BRL',
     },
     category: categoryName,
@@ -104,14 +92,14 @@ export default async function FigmaProductPage({ params }: ProductPageProps) {
       />
 
       {/* Breadcrumb */}
-      <nav className="mb-8 text-sm text-[rgba(0,0,0,0.5)]">
-        <Link href="/figma" className="hover:text-[#db4444] transition-colors">
+      <nav className="mb-8 text-sm text-figma-text-muted">
+        <Link href="/figma" className="hover:text-figma-red transition-colors">
           Início
         </Link>
         <span className="mx-2">/</span>
         <Link
           href="/figma/produtos"
-          className="hover:text-[#db4444] transition-colors"
+          className="hover:text-figma-red transition-colors"
         >
           Produtos
         </Link>
@@ -119,29 +107,29 @@ export default async function FigmaProductPage({ params }: ProductPageProps) {
           <>
             <span className="mx-2">/</span>
             <Link
-              href={`/categorias/${categorySlug}`}
-              className="hover:text-[#db4444] transition-colors"
+              href={`/figma/categorias/${categorySlug}`}
+              className="hover:text-figma-red transition-colors"
             >
               {categoryName}
             </Link>
           </>
         )}
         <span className="mx-2">/</span>
-        <span className="font-semibold text-[#2f2e30]">{p.name}</span>
+        <span className="font-semibold text-figma-dark">{product.name}</span>
       </nav>
 
       {/* Product Detail — two columns */}
       <div className="grid grid-cols-1 gap-12 lg:grid-cols-2">
         {/* Image */}
-        <div className="flex items-center justify-center bg-[#f5f5f5] rounded-[4px] aspect-square">
-          {p.image_url ? (
+        <div className="flex items-center justify-center bg-figma-bg-secondary rounded-[4px] aspect-square">
+          {product.image_url ? (
             <img
-              src={p.image_url}
-              alt={p.name}
+              src={product.image_url}
+              alt={product.name}
               className="h-full w-full object-contain p-8"
             />
           ) : (
-            <div className="flex flex-col items-center gap-3 text-[rgba(0,0,0,0.2)]">
+            <div className="flex flex-col items-center gap-3 text-figma-border/40">
               <svg
                 className="h-24 w-24"
                 fill="none"
@@ -162,45 +150,45 @@ export default async function FigmaProductPage({ params }: ProductPageProps) {
 
         {/* Info */}
         <div className="flex flex-col justify-center">
-          {p.featured && (
-            <span className="inline-flex self-start rounded-[4px] bg-[#db4444] px-3 py-1 text-xs font-medium text-white mb-4">
+          {product.featured && (
+            <span className="inline-flex self-start rounded-[4px] bg-figma-red px-3 py-1 text-xs font-medium text-white mb-4">
               Destaque
             </span>
           )}
 
-          <h1 className="text-3xl lg:text-4xl font-semibold text-[#2f2e30] tracking-[0.04em]">
-            {p.name}
+          <h1 className="text-3xl lg:text-4xl font-semibold text-figma-dark tracking-[0.04em]">
+            {product.name}
           </h1>
 
           {/* Price */}
           <div className="mt-6 flex items-baseline gap-3">
-            <span className="text-3xl font-semibold text-[#db4444]">
-              {p.price}
+            <span className="text-3xl font-semibold text-figma-red">
+              {product.price}
             </span>
-            {p.price && (
-              <span className="text-lg text-[rgba(0,0,0,0.4)] line-through">
-                {formatDiscountedPrice(p.price, 10)}
+            {product.price && (
+              <span className="text-lg text-figma-price-original line-through">
+                {formatDiscountedPrice(product.price, 10)}
               </span>
             )}
           </div>
 
           {/* Description */}
           <div className="mt-8">
-            <h2 className="text-lg font-semibold text-[#2f2e30] mb-3">
+            <h2 className="text-lg font-semibold text-figma-dark mb-3">
               Descrição
             </h2>
-            <p className="text-sm text-[rgba(0,0,0,0.6)] leading-relaxed">
-              {p.description}
+            <p className="text-sm text-figma-text-secondary leading-relaxed">
+              {product.description}
             </p>
           </div>
 
           {/* Category */}
           {categoryName && (
             <div className="mt-6 flex items-center gap-2">
-              <span className="text-sm text-[rgba(0,0,0,0.5)]">Categoria:</span>
+              <span className="text-sm text-figma-text-muted">Categoria:</span>
               <Link
-                href={`/categorias/${categorySlug}`}
-                className="text-sm font-medium text-[#db4444] hover:text-[#e07575] transition-colors"
+                href={`/figma/categorias/${categorySlug}`}
+                className="text-sm font-medium text-figma-red hover:text-figma-red-hover transition-colors"
               >
                 {categoryName}
               </Link>
@@ -208,28 +196,26 @@ export default async function FigmaProductPage({ params }: ProductPageProps) {
           )}
 
           {/* Supplier */}
-          {p.supplier && (
+          {product.supplier && (
             <div className="mt-3 flex items-center gap-2">
-              <span className="text-sm text-[rgba(0,0,0,0.5)]">
-                Fornecedor:
-              </span>
-              <span className="text-sm font-medium text-[#2f2e30]">
-                {p.supplier}
+              <span className="text-sm text-figma-text-muted">Fornecedor:</span>
+              <span className="text-sm font-medium text-figma-dark">
+                {product.supplier}
               </span>
             </div>
           )}
 
           {/* Specs */}
-          {p.specs && Object.keys(p.specs).length > 0 && (
+          {product.specs && Object.keys(product.specs).length > 0 && (
             <div className="mt-8">
-              <h2 className="text-lg font-semibold text-[#2f2e30] mb-4">
+              <h2 className="text-lg font-semibold text-figma-dark mb-4">
                 Especificações
               </h2>
-              <dl className="divide-y divide-[rgba(0,0,0,0.1)] border-t border-[rgba(0,0,0,0.1)]">
-                {Object.entries(p.specs).map(([key, value]) => (
+              <dl className="divide-y divide-figma-border border-t border-figma-border">
+                {Object.entries(product.specs).map(([key, value]) => (
                   <div key={key} className="flex justify-between py-3 text-sm">
-                    <dt className="text-[rgba(0,0,0,0.5)]">{key}</dt>
-                    <dd className="font-medium text-[#2f2e30]">{value}</dd>
+                    <dt className="text-figma-text-muted">{key}</dt>
+                    <dd className="font-medium text-figma-dark">{value}</dd>
                   </div>
                 ))}
               </dl>
@@ -238,10 +224,10 @@ export default async function FigmaProductPage({ params }: ProductPageProps) {
 
           {/* CTA */}
           <div className="mt-10 flex flex-wrap gap-4">
-            <button className="rounded-[4px] bg-[#db4444] hover:bg-[#e07575] text-white px-8 py-3 text-sm font-medium transition-colors">
+            <button className="rounded-[4px] bg-figma-red hover:bg-figma-red-hover text-white px-8 py-3 text-sm font-medium transition-colors">
               Solicitar Informações
             </button>
-            <button className="rounded-[4px] border border-[rgba(0,0,0,0.2)] hover:border-[#db4444] hover:text-[#db4444] text-[#2f2e30] px-8 py-3 text-sm font-medium transition-colors">
+            <button className="rounded-[4px] border border-figma-border-strong hover:border-figma-red hover:text-figma-red text-figma-dark px-8 py-3 text-sm font-medium transition-colors">
               Adicionar aos Favoritos
             </button>
           </div>
@@ -249,38 +235,33 @@ export default async function FigmaProductPage({ params }: ProductPageProps) {
       </div>
 
       {/* Related Products */}
-      {relatedProducts.length > 0 && (
+      {filtered.length > 0 && (
         <section className="mt-20">
           <div className="flex items-center gap-4 mb-10">
-            <div className="h-10 w-5 rounded-[2px] bg-[#db4444]" />
-            <span className="text-sm font-semibold text-[#db4444]">
+            <div className="h-10 w-5 rounded-[2px] bg-figma-red" />
+            <span className="text-sm font-semibold text-figma-red">
               Relacionados
             </span>
           </div>
-          <h2 className="text-2xl lg:text-3xl font-semibold text-[#2f2e30] tracking-[0.04em] mb-10">
+          <h2 className="text-2xl lg:text-3xl font-semibold text-figma-dark tracking-[0.04em] mb-10">
             Produtos Relacionados
           </h2>
           <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
-            {relatedProducts.map((rp) => (
-              <FigmaProductCard
-                key={rp.slug}
-                product={rp}
-                discountPercent={15}
-                rating={4.5}
-                reviewCount={88}
-              />
-            ))}
+            {filtered.map((rp) => {
+              const { rating, reviewCount } = ratingFromName(rp.name);
+              return (
+                <FigmaProductCard
+                  key={rp.slug}
+                  product={rp}
+                  discountPercent={15}
+                  rating={rating}
+                  reviewCount={reviewCount}
+                />
+              );
+            })}
           </div>
         </section>
       )}
     </div>
   );
-}
-
-/** Format a "discounted" price for visual display */
-function formatDiscountedPrice(price: string, discountPercent: number): string {
-  const numeric = parseFloat(price.replace(/[^\d,]/g, '').replace(',', '.'));
-  if (isNaN(numeric)) return '';
-  const original = numeric / (1 - discountPercent / 100);
-  return `R$ ${original.toFixed(2).replace('.', ',')}`;
 }

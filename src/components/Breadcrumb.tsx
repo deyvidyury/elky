@@ -7,17 +7,27 @@ interface BreadcrumbItem {
 
 interface BreadcrumbProps {
   items: BreadcrumbItem[];
+  /** Design system variant. Defaults to 'main'. */
+  variant?: 'main' | 'figma';
 }
 
-export function Breadcrumb({ items }: BreadcrumbProps) {
+export function Breadcrumb({ items, variant = 'main' }: BreadcrumbProps) {
+  const isFigma = variant === 'figma';
+
   return (
     <nav aria-label="Breadcrumb" className="mb-8">
-      <ol className="flex flex-wrap items-center text-sm text-gray-500">
+      <ol
+        className={`flex flex-wrap items-center text-sm ${
+          isFigma ? 'text-figma-text-muted' : 'text-gray-500'
+        }`}
+      >
         {items.map((item, i) => (
           <li key={item.href} className="flex items-center">
             {i > 0 && (
               <svg
-                className="mx-2 h-4 w-4 shrink-0 text-gray-300"
+                className={`mx-2 h-4 w-4 shrink-0 ${
+                  isFigma ? 'text-figma-text-muted' : 'text-gray-300'
+                }`}
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -32,7 +42,9 @@ export function Breadcrumb({ items }: BreadcrumbProps) {
             )}
             {i === items.length - 1 || item.href === '#' ? (
               <span
-                className="font-semibold text-brand-700"
+                className={`font-semibold ${
+                  isFigma ? 'text-figma-dark' : 'text-brand-700'
+                }`}
                 aria-current="page"
               >
                 {item.label}
@@ -40,7 +52,9 @@ export function Breadcrumb({ items }: BreadcrumbProps) {
             ) : (
               <Link
                 href={item.href}
-                className="hover:text-brand-700 transition-colors"
+                className={`transition-colors ${
+                  isFigma ? 'hover:text-figma-red' : 'hover:text-brand-700'
+                }`}
               >
                 {item.label}
               </Link>

@@ -6,8 +6,8 @@ import { FigmaProductCard } from '@/components/FigmaProductCard';
 function SectionEyebrow({ label }: { label: string }) {
   return (
     <div className="flex items-center gap-4">
-      <div className="h-10 w-5 rounded-[2px] bg-[#db4444]" />
-      <span className="text-sm font-semibold text-[#db4444]">{label}</span>
+      <div className="h-10 w-5 rounded-[2px] bg-figma-red" />
+      <span className="text-sm font-semibold text-figma-red">{label}</span>
     </div>
   );
 }
@@ -24,13 +24,13 @@ function ServiceBadge({
 }) {
   return (
     <div className="flex flex-col items-center text-center gap-2">
-      <div className="flex items-center justify-center size-[80px] rounded-full bg-[#2f2e30]">
+      <div className="flex items-center justify-center size-[80px] rounded-full bg-figma-dark">
         <div className="flex items-center justify-center size-[58px] rounded-full bg-black text-white">
           {icon}
         </div>
       </div>
-      <h4 className="text-lg font-semibold text-[#2f2e30] mt-2">{title}</h4>
-      <p className="text-xs text-[rgba(0,0,0,0.5)] max-w-[240px] leading-relaxed">
+      <h4 className="text-lg font-semibold text-figma-dark mt-2">{title}</h4>
+      <p className="text-xs text-figma-text-muted max-w-[240px] leading-relaxed">
         {description}
       </p>
     </div>
@@ -110,19 +110,23 @@ export default async function FigmaHomePage() {
       <section className="mx-auto max-w-[1170px] px-4 sm:px-6">
         <div className="flex gap-0 pt-10 pb-20">
           {/* Left sidebar — categories */}
-          <aside className="hidden lg:flex flex-col gap-4 w-[217px] shrink-0 pt-2 border-r border-[rgba(0,0,0,0.1)] pr-4">
+          <aside className="hidden lg:flex flex-col gap-4 w-[217px] shrink-0 pt-2 border-r border-figma-border pr-4">
             {[
               ...allCategories.map((c) => ({
                 label: c.name,
-                href: `/categorias/${c.slug}`,
+                href: `/figma/categorias/${c.slug}`,
                 hasSub: c.slug === 'cozinha' || c.slug === 'lavagem',
               })),
-              { label: 'Todos os Produtos', href: '/produtos', hasSub: false },
+              {
+                label: 'Todos os Produtos',
+                href: '/figma/produtos',
+                hasSub: false,
+              },
             ].map((item) => (
               <Link
                 key={item.label}
                 href={item.href}
-                className="flex items-center justify-between text-sm text-[#2f2e30] hover:text-[#db4444] transition-colors"
+                className="flex items-center justify-between text-sm text-figma-dark hover:text-figma-red transition-colors"
               >
                 {item.label}
                 {item.hasSub && (
@@ -145,29 +149,29 @@ export default async function FigmaHomePage() {
           </aside>
 
           {/* Main hero */}
-          <div className="flex-1 lg:pl-12 flex items-center bg-[#2f2e30] rounded-[4px] overflow-hidden min-h-[344px]">
+          <div className="flex-1 lg:pl-12 flex items-center bg-figma-dark rounded-[4px] overflow-hidden min-h-[344px]">
             <div className="flex-1 px-8 lg:px-16 py-12">
               {/* Apple-style logo placeholder */}
               <div className="flex items-center gap-4 mb-5">
                 <div className="size-10 rounded-lg bg-white/10 flex items-center justify-center">
                   <span className="text-white text-xl font-bold">🍽️</span>
                 </div>
-                <span className="text-sm text-[#fafafa]">
+                <span className="text-sm text-figma-dark-text">
                   Equipamentos Profissionais
                 </span>
               </div>
 
-              <h1 className="text-4xl lg:text-5xl font-semibold text-[#fafafa] leading-tight tracking-[0.04em] max-w-[340px]">
+              <h1 className="text-4xl lg:text-5xl font-semibold text-figma-dark-text leading-tight tracking-[0.04em] max-w-[340px]">
                 Até 10% off em Pedidos
               </h1>
 
               <Link
-                href="/produtos"
-                className="inline-flex items-center gap-2 mt-8 text-sm font-medium text-[#fafafa] group"
+                href="/figma/produtos"
+                className="inline-flex items-center gap-2 mt-8 text-sm font-medium text-figma-dark-text group"
               >
                 <span className="relative">
                   Comprar Agora
-                  <span className="absolute -bottom-1 left-0 right-0 h-px bg-[#fafafa] group-hover:bg-[#db4444] transition-colors" />
+                  <span className="absolute -bottom-1 left-0 right-0 h-px bg-figma-dark-text group-hover:bg-figma-red transition-colors" />
                 </span>
                 <svg
                   className="h-5 w-5 group-hover:translate-x-1 transition-transform"
@@ -191,8 +195,8 @@ export default async function FigmaHomePage() {
                     key={i}
                     className={`size-3 rounded-full border-2 transition-colors ${
                       active
-                        ? 'bg-[#db4444] border-[#db4444]'
-                        : 'bg-transparent border-[rgba(250,250,250,0.5)]'
+                        ? 'bg-figma-red border-figma-red'
+                        : 'bg-transparent border-figma-dark-muted-strong'
                     }`}
                   />
                 ))}
@@ -201,7 +205,7 @@ export default async function FigmaHomePage() {
 
             {/* Hero image placeholder */}
             <div className="hidden md:block w-[496px] shrink-0">
-              <div className="aspect-square bg-[#1a1a1a] flex items-center justify-center">
+              <div className="aspect-square bg-black/90 flex items-center justify-center">
                 {featuredProducts[0]?.image_url ? (
                   <img
                     src={featuredProducts[0].image_url}
@@ -223,12 +227,12 @@ export default async function FigmaHomePage() {
       <section className="mx-auto max-w-[1170px] px-4 sm:px-6 pb-20">
         <SectionEyebrow label="Hoje" />
         <div className="flex items-end justify-between mt-6 mb-10">
-          <h2 className="text-3xl lg:text-4xl font-semibold text-[#2f2e30] tracking-[0.04em]">
+          <h2 className="text-3xl lg:text-4xl font-semibold text-figma-dark tracking-[0.04em]">
             Promoções Relâmpago
           </h2>
           {/* Arrow buttons */}
           <div className="hidden sm:flex items-center gap-2">
-            <button className="size-[46px] rounded-full bg-[#f5f5f5] hover:bg-[#db4444] hover:text-white text-[#2f2e30] flex items-center justify-center transition-colors">
+            <button className="size-[46px] rounded-full bg-figma-bg-secondary hover:bg-figma-red hover:text-white text-figma-dark flex items-center justify-center transition-colors">
               <svg
                 className="h-5 w-5"
                 fill="none"
@@ -243,7 +247,7 @@ export default async function FigmaHomePage() {
                 />
               </svg>
             </button>
-            <button className="size-[46px] rounded-full bg-[#f5f5f5] hover:bg-[#db4444] hover:text-white text-[#2f2e30] flex items-center justify-center transition-colors">
+            <button className="size-[46px] rounded-full bg-figma-bg-secondary hover:bg-figma-red hover:text-white text-figma-dark flex items-center justify-center transition-colors">
               <svg
                 className="h-5 w-5"
                 fill="none"
@@ -276,8 +280,8 @@ export default async function FigmaHomePage() {
 
         <div className="mt-12 text-center">
           <Link
-            href="/produtos"
-            className="inline-flex items-center justify-center h-[56px] px-12 bg-[#db4444] hover:bg-[#e07575] text-white text-sm font-medium rounded-[4px] transition-colors"
+            href="/figma/produtos"
+            className="inline-flex items-center justify-center h-[56px] px-12 bg-figma-red hover:bg-figma-red-hover text-white text-sm font-medium rounded-[4px] transition-colors"
           >
             Ver Todos os Produtos
           </Link>
@@ -286,7 +290,7 @@ export default async function FigmaHomePage() {
 
       {/* Divider */}
       <div className="mx-auto max-w-[1170px] px-4 sm:px-6">
-        <hr className="border-[rgba(0,0,0,0.1)]" />
+        <hr className="border-figma-border" />
       </div>
 
       {/* ============================================
@@ -295,11 +299,11 @@ export default async function FigmaHomePage() {
       <section className="mx-auto max-w-[1170px] px-4 sm:px-6 py-20">
         <SectionEyebrow label="Categorias" />
         <div className="flex items-end justify-between mt-6 mb-10">
-          <h2 className="text-3xl lg:text-4xl font-semibold text-[#2f2e30] tracking-[0.04em]">
+          <h2 className="text-3xl lg:text-4xl font-semibold text-figma-dark tracking-[0.04em]">
             Navegue por Categoria
           </h2>
           <div className="hidden sm:flex items-center gap-2">
-            <button className="size-[46px] rounded-full bg-[#f5f5f5] hover:bg-[#db4444] hover:text-white text-[#2f2e30] flex items-center justify-center transition-colors">
+            <button className="size-[46px] rounded-full bg-figma-bg-secondary hover:bg-figma-red hover:text-white text-figma-dark flex items-center justify-center transition-colors">
               <svg
                 className="h-5 w-5"
                 fill="none"
@@ -314,7 +318,7 @@ export default async function FigmaHomePage() {
                 />
               </svg>
             </button>
-            <button className="size-[46px] rounded-full bg-[#f5f5f5] hover:bg-[#db4444] hover:text-white text-[#2f2e30] flex items-center justify-center transition-colors">
+            <button className="size-[46px] rounded-full bg-figma-bg-secondary hover:bg-figma-red hover:text-white text-figma-dark flex items-center justify-center transition-colors">
               <svg
                 className="h-5 w-5"
                 fill="none"
@@ -337,7 +341,7 @@ export default async function FigmaHomePage() {
             <Link
               key={cat.slug}
               href={`/categorias/${cat.slug}`}
-              className="flex flex-col items-center justify-center gap-4 border border-[rgba(0,0,0,0.1)] rounded-[4px] py-8 hover:bg-[#db4444] hover:text-white hover:border-[#db4444] transition-all group"
+              className="flex flex-col items-center justify-center gap-4 border border-figma-border rounded-[4px] py-8 hover:bg-figma-red hover:text-white hover:border-figma-red transition-all group"
             >
               <span className="text-4xl group-hover:scale-110 transition-transform">
                 {cat.icon}
@@ -352,7 +356,7 @@ export default async function FigmaHomePage() {
 
       {/* Divider */}
       <div className="mx-auto max-w-[1170px] px-4 sm:px-6">
-        <hr className="border-[rgba(0,0,0,0.1)]" />
+        <hr className="border-figma-border" />
       </div>
 
       {/* ============================================
@@ -361,12 +365,12 @@ export default async function FigmaHomePage() {
       <section className="mx-auto max-w-[1170px] px-4 sm:px-6 py-20">
         <SectionEyebrow label="Este Mês" />
         <div className="flex items-end justify-between mt-6 mb-10">
-          <h2 className="text-3xl lg:text-4xl font-semibold text-[#2f2e30] tracking-[0.04em]">
+          <h2 className="text-3xl lg:text-4xl font-semibold text-figma-dark tracking-[0.04em]">
             Produtos Mais Vendidos
           </h2>
           <Link
-            href="/produtos"
-            className="hidden sm:inline-flex items-center justify-center h-[56px] px-12 bg-[#db4444] hover:bg-[#e07575] text-white text-sm font-medium rounded-[4px] transition-colors"
+            href="/figma/produtos"
+            className="hidden sm:inline-flex items-center justify-center h-[56px] px-12 bg-figma-red hover:bg-figma-red-hover text-white text-sm font-medium rounded-[4px] transition-colors"
           >
             Ver Todos
           </Link>
@@ -386,8 +390,8 @@ export default async function FigmaHomePage() {
         {/* Mobile "View All" */}
         <div className="mt-8 text-center sm:hidden">
           <Link
-            href="/produtos"
-            className="inline-flex items-center justify-center h-[56px] px-12 bg-[#db4444] hover:bg-[#e07575] text-white text-sm font-medium rounded-[4px] transition-colors"
+            href="/figma/produtos"
+            className="inline-flex items-center justify-center h-[56px] px-12 bg-figma-red hover:bg-figma-red-hover text-white text-sm font-medium rounded-[4px] transition-colors"
           >
             Ver Todos
           </Link>
@@ -398,16 +402,16 @@ export default async function FigmaHomePage() {
           PROMO BANNER — dark background
           ============================================ */}
       <section className="mx-auto max-w-[1170px] px-4 sm:px-6 pb-20">
-        <div className="bg-[#2f2e30] rounded-[4px] overflow-hidden flex flex-col lg:flex-row items-center min-h-[500px]">
+        <div className="bg-figma-dark rounded-[4px] overflow-hidden flex flex-col lg:flex-row items-center min-h-[500px]">
           {/* Text side */}
           <div className="flex-1 px-8 lg:px-16 py-16">
-            <span className="text-sm font-medium text-[#00ff66]">
+            <span className="text-sm font-medium text-figma-green">
               Categorias
             </span>
-            <h2 className="text-4xl lg:text-5xl font-semibold text-[#fafafa] leading-tight mt-8 max-w-[460px]">
+            <h2 className="text-4xl lg:text-5xl font-semibold text-figma-dark-text leading-tight mt-8 max-w-[460px]">
               Equipe sua Cozinha com o Melhor
             </h2>
-            <p className="text-sm text-[rgba(250,250,250,0.6)] mt-6 max-w-[400px] leading-relaxed">
+            <p className="text-sm text-figma-dark-muted-medium mt-6 max-w-[400px] leading-relaxed">
               Fogões industriais, fritadeiras, chapas e bancadas de preparo.
               Tudo que você precisa para uma cozinha profissional de alto
               rendimento.
@@ -423,11 +427,11 @@ export default async function FigmaHomePage() {
               ].map((item) => (
                 <div key={item.label} className="flex flex-col items-center">
                   <div className="size-[62px] rounded-full bg-white flex items-center justify-center">
-                    <span className="text-lg font-bold text-[#2f2e30]">
+                    <span className="text-lg font-bold text-figma-dark">
                       {item.value}
                     </span>
                   </div>
-                  <span className="text-[11px] text-[rgba(250,250,250,0.6)] mt-1">
+                  <span className="text-[11px] text-figma-dark-muted-medium mt-1">
                     {item.label}
                   </span>
                 </div>
@@ -436,7 +440,7 @@ export default async function FigmaHomePage() {
 
             <Link
               href="/categorias/cozinha"
-              className="inline-flex items-center justify-center h-[56px] px-12 bg-[#00ff66] hover:bg-[#00dd55] text-white text-sm font-medium rounded-[4px] mt-10 transition-colors"
+              className="inline-flex items-center justify-center h-[56px] px-12 bg-figma-green hover:bg-figma-green/90 text-white text-sm font-medium rounded-[4px] mt-10 transition-colors"
             >
               Comprar Agora
             </Link>
@@ -457,11 +461,11 @@ export default async function FigmaHomePage() {
       <section className="mx-auto max-w-[1170px] px-4 sm:px-6 pb-20">
         <SectionEyebrow label="Nossos Produtos" />
         <div className="flex items-end justify-between mt-6 mb-10">
-          <h2 className="text-3xl lg:text-4xl font-semibold text-[#2f2e30] tracking-[0.04em]">
+          <h2 className="text-3xl lg:text-4xl font-semibold text-figma-dark tracking-[0.04em]">
             Explore Nossos Produtos
           </h2>
           <div className="hidden sm:flex items-center gap-2">
-            <button className="size-[46px] rounded-full bg-[#f5f5f5] hover:bg-[#db4444] hover:text-white text-[#2f2e30] flex items-center justify-center transition-colors">
+            <button className="size-[46px] rounded-full bg-figma-bg-secondary hover:bg-figma-red hover:text-white text-figma-dark flex items-center justify-center transition-colors">
               <svg
                 className="h-5 w-5"
                 fill="none"
@@ -476,7 +480,7 @@ export default async function FigmaHomePage() {
                 />
               </svg>
             </button>
-            <button className="size-[46px] rounded-full bg-[#f5f5f5] hover:bg-[#db4444] hover:text-white text-[#2f2e30] flex items-center justify-center transition-colors">
+            <button className="size-[46px] rounded-full bg-figma-bg-secondary hover:bg-figma-red hover:text-white text-figma-dark flex items-center justify-center transition-colors">
               <svg
                 className="h-5 w-5"
                 fill="none"
@@ -509,8 +513,8 @@ export default async function FigmaHomePage() {
 
         <div className="mt-12 text-center">
           <Link
-            href="/produtos"
-            className="inline-flex items-center justify-center h-[56px] px-12 bg-[#db4444] hover:bg-[#e07575] text-white text-sm font-medium rounded-[4px] transition-colors"
+            href="/figma/produtos"
+            className="inline-flex items-center justify-center h-[56px] px-12 bg-figma-red hover:bg-figma-red-hover text-white text-sm font-medium rounded-[4px] transition-colors"
           >
             Ver Todos os Produtos
           </Link>
@@ -522,13 +526,13 @@ export default async function FigmaHomePage() {
           ============================================ */}
       <section className="mx-auto max-w-[1170px] px-4 sm:px-6 pb-20">
         <SectionEyebrow label="Destaque" />
-        <h2 className="text-3xl lg:text-4xl font-semibold text-[#2f2e30] tracking-[0.04em] mt-6 mb-10">
+        <h2 className="text-3xl lg:text-4xl font-semibold text-figma-dark tracking-[0.04em] mt-6 mb-10">
           Novidades
         </h2>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Left — large card */}
-          <div className="bg-[#2f2e30] rounded-[4px] overflow-hidden relative min-h-[600px] flex flex-col justify-end p-8">
+          <div className="bg-figma-dark rounded-[4px] overflow-hidden relative min-h-[600px] flex flex-col justify-end p-8">
             {/* Product image placeholder */}
             <div className="absolute inset-0 flex items-center justify-center">
               {products[0]?.image_url ? (
@@ -542,10 +546,10 @@ export default async function FigmaHomePage() {
               )}
             </div>
             <div className="relative z-10">
-              <h3 className="text-2xl font-semibold text-[#fafafa]">
+              <h3 className="text-2xl font-semibold text-figma-dark-text">
                 {products[0]?.name || 'Produto em Destaque'}
               </h3>
-              <p className="text-sm text-[rgba(250,250,250,0.6)] mt-3 max-w-[300px] leading-relaxed">
+              <p className="text-sm text-figma-dark-muted-medium mt-3 max-w-[300px] leading-relaxed">
                 {products[0]?.description ||
                   'Confira nossa seleção de produtos mais recentes.'}
               </p>
@@ -555,11 +559,11 @@ export default async function FigmaHomePage() {
                     ? `/produtos/${products[0].categories?.slug}/${products[0].slug}`
                     : '/produtos'
                 }
-                className="inline-flex items-center gap-1 mt-6 text-sm font-medium text-[#fafafa] group"
+                className="inline-flex items-center gap-1 mt-6 text-sm font-medium text-figma-dark-text group"
               >
                 <span className="relative">
                   Comprar Agora
-                  <span className="absolute -bottom-1 left-0 right-0 h-px bg-[#fafafa] group-hover:bg-[#db4444] transition-colors" />
+                  <span className="absolute -bottom-1 left-0 right-0 h-px bg-figma-dark-text group-hover:bg-figma-red transition-colors" />
                 </span>
               </Link>
             </div>
@@ -568,7 +572,7 @@ export default async function FigmaHomePage() {
           {/* Right — 2x2 grid */}
           <div className="grid grid-rows-2 gap-6">
             {/* Top right */}
-            <div className="bg-[#2f2e30] rounded-[4px] overflow-hidden relative flex items-center p-8 min-h-[284px]">
+            <div className="bg-figma-dark rounded-[4px] overflow-hidden relative flex items-center p-8 min-h-[284px]">
               <div className="absolute right-0 top-0 bottom-0 w-[55%] flex items-center justify-center">
                 {products[1]?.image_url ? (
                   <img
@@ -581,10 +585,10 @@ export default async function FigmaHomePage() {
                 )}
               </div>
               <div className="relative z-10 max-w-[55%]">
-                <h3 className="text-2xl font-semibold text-[#fafafa]">
+                <h3 className="text-2xl font-semibold text-figma-dark-text">
                   {products[1]?.name || 'Coleções'}
                 </h3>
-                <p className="text-sm text-[rgba(250,250,250,0.6)] mt-2 leading-relaxed">
+                <p className="text-sm text-figma-dark-muted-medium mt-2 leading-relaxed">
                   Produtos selecionados que trazem outro nível ao seu negócio.
                 </p>
                 <Link
@@ -593,11 +597,11 @@ export default async function FigmaHomePage() {
                       ? `/produtos/${products[1].categories?.slug}/${products[1].slug}`
                       : '/produtos'
                   }
-                  className="inline-flex items-center gap-1 mt-4 text-sm font-medium text-[#fafafa] group"
+                  className="inline-flex items-center gap-1 mt-4 text-sm font-medium text-figma-dark-text group"
                 >
                   <span className="relative">
                     Comprar Agora
-                    <span className="absolute -bottom-1 left-0 right-0 h-px bg-[#fafafa] group-hover:bg-[#db4444] transition-colors" />
+                    <span className="absolute -bottom-1 left-0 right-0 h-px bg-figma-dark-text group-hover:bg-figma-red transition-colors" />
                   </span>
                 </Link>
               </div>
@@ -605,47 +609,47 @@ export default async function FigmaHomePage() {
 
             {/* Bottom 2 cards */}
             <div className="grid grid-cols-2 gap-6">
-              <div className="bg-[#2f2e30] rounded-[4px] overflow-hidden relative flex items-end p-6 min-h-[284px]">
+              <div className="bg-figma-dark rounded-[4px] overflow-hidden relative flex items-end p-6 min-h-[284px]">
                 <div className="absolute inset-0 flex items-center justify-center">
                   <span className="text-[80px] opacity-15">❄️</span>
                 </div>
                 <div className="relative z-10">
-                  <h3 className="text-lg font-semibold text-[#fafafa]">
+                  <h3 className="text-lg font-semibold text-figma-dark-text">
                     Refrigeração
                   </h3>
-                  <p className="text-xs text-[rgba(250,250,250,0.6)] mt-1">
+                  <p className="text-xs text-figma-dark-muted-medium mt-1">
                     Freezers e câmaras frias
                   </p>
                   <Link
                     href="/categorias/refrigeracao"
-                    className="inline-flex items-center gap-1 mt-3 text-xs font-medium text-[#fafafa] group"
+                    className="inline-flex items-center gap-1 mt-3 text-xs font-medium text-figma-dark-text group"
                   >
                     <span className="relative">
                       Ver Mais
-                      <span className="absolute -bottom-1 left-0 right-0 h-px bg-[#fafafa] group-hover:bg-[#db4444] transition-colors" />
+                      <span className="absolute -bottom-1 left-0 right-0 h-px bg-figma-dark-text group-hover:bg-figma-red transition-colors" />
                     </span>
                   </Link>
                 </div>
               </div>
 
-              <div className="bg-[#2f2e30] rounded-[4px] overflow-hidden relative flex items-end p-6 min-h-[284px]">
+              <div className="bg-figma-dark rounded-[4px] overflow-hidden relative flex items-end p-6 min-h-[284px]">
                 <div className="absolute inset-0 flex items-center justify-center">
                   <span className="text-[80px] opacity-15">🚿</span>
                 </div>
                 <div className="relative z-10">
-                  <h3 className="text-lg font-semibold text-[#fafafa]">
+                  <h3 className="text-lg font-semibold text-figma-dark-text">
                     Lavagem
                   </h3>
-                  <p className="text-xs text-[rgba(250,250,250,0.6)] mt-1">
+                  <p className="text-xs text-figma-dark-muted-medium mt-1">
                     Lava-louças industrial
                   </p>
                   <Link
                     href="/categorias/lavagem"
-                    className="inline-flex items-center gap-1 mt-3 text-xs font-medium text-[#fafafa] group"
+                    className="inline-flex items-center gap-1 mt-3 text-xs font-medium text-figma-dark-text group"
                   >
                     <span className="relative">
                       Ver Mais
-                      <span className="absolute -bottom-1 left-0 right-0 h-px bg-[#fafafa] group-hover:bg-[#db4444] transition-colors" />
+                      <span className="absolute -bottom-1 left-0 right-0 h-px bg-figma-dark-text group-hover:bg-figma-red transition-colors" />
                     </span>
                   </Link>
                 </div>

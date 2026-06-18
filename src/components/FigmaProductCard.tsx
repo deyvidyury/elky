@@ -21,7 +21,7 @@ function Stars({ rating }: { rating: number }) {
       {Array.from({ length: full }).map((_, i) => (
         <svg
           key={`full-${i}`}
-          className="h-[14px] w-[14px] text-[#ffad33]"
+          className="h-[14px] w-[14px] text-figma-star"
           fill="currentColor"
           viewBox="0 0 20 20"
         >
@@ -30,7 +30,7 @@ function Stars({ rating }: { rating: number }) {
       ))}
       {hasHalf && (
         <svg
-          className="h-[14px] w-[14px] text-[#ffad33]"
+          className="h-[14px] w-[14px] text-figma-star"
           fill="currentColor"
           viewBox="0 0 20 20"
         >
@@ -49,7 +49,7 @@ function Stars({ rating }: { rating: number }) {
       {Array.from({ length: empty }).map((_, i) => (
         <svg
           key={`empty-${i}`}
-          className="h-[14px] w-[14px] text-[#D1D5DB]"
+          className="h-[14px] w-[14px] text-figma-star-empty"
           fill="currentColor"
           viewBox="0 0 20 20"
         >
@@ -67,7 +67,7 @@ export function FigmaProductCard({
   reviewCount = 88,
 }: FigmaProductCardProps) {
   const categorySlug = product.categories?.slug ?? '';
-  const href = `/produtos/${categorySlug}/${product.slug}`;
+  const href = `/figma/produtos/${categorySlug}/${product.slug}`;
   const originalPrice = discountPercent
     ? `R$ ${(parseFloat(product.price.replace('R$ ', '').replace(',', '.')) / (1 - discountPercent / 100)).toFixed(2).replace('.', ',')}`
     : undefined;
@@ -75,10 +75,10 @@ export function FigmaProductCard({
   return (
     <div className="group flex flex-col gap-4">
       {/* Image container */}
-      <div className="relative bg-[#f5f5f5] rounded-[4px] overflow-hidden aspect-square">
+      <div className="relative bg-figma-bg-secondary rounded-[4px] overflow-hidden aspect-square">
         {/* Discount badge */}
         {discountPercent && (
-          <div className="absolute top-3 left-3 z-10 bg-[#db4444] text-[#fafafa] text-xs px-3 py-1 rounded-[4px]">
+          <div className="absolute top-3 left-3 z-10 bg-figma-red text-figma-dark-text text-xs px-3 py-1 rounded-[4px]">
             -{discountPercent}%
           </div>
         )}
@@ -86,7 +86,7 @@ export function FigmaProductCard({
         {/* Wishlist + Quick view icons */}
         <div className="absolute top-3 right-3 z-10 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
           <button
-            className="flex items-center justify-center size-[34px] rounded-full bg-white hover:bg-[#db4444] hover:text-white text-[#2f2e30] transition-colors shadow-sm"
+            className="flex items-center justify-center size-[34px] rounded-full bg-white hover:bg-figma-red hover:text-white text-figma-dark transition-colors shadow-sm"
             aria-label="Adicionar aos favoritos"
           >
             <svg
@@ -104,7 +104,7 @@ export function FigmaProductCard({
             </svg>
           </button>
           <button
-            className="flex items-center justify-center size-[34px] rounded-full bg-white hover:bg-[#db4444] hover:text-white text-[#2f2e30] transition-colors shadow-sm"
+            className="flex items-center justify-center size-[34px] rounded-full bg-white hover:bg-figma-red hover:text-white text-figma-dark transition-colors shadow-sm"
             aria-label="Visualização rápida"
           >
             <svg
@@ -146,18 +146,18 @@ export function FigmaProductCard({
       <div className="flex flex-col gap-2">
         <Link
           href={href}
-          className="text-sm font-medium text-[#2f2e30] line-clamp-1 hover:text-[#db4444] transition-colors"
+          className="text-sm font-medium text-figma-dark line-clamp-1 hover:text-figma-red transition-colors"
         >
           {product.name}
         </Link>
 
         {/* Price row */}
         <div className="flex items-center gap-3">
-          <span className="text-sm font-medium text-[#db4444]">
+          <span className="text-sm font-medium text-figma-red">
             {product.price}
           </span>
           {originalPrice && (
-            <span className="text-sm text-[rgba(0,0,0,0.5)] line-through">
+            <span className="text-sm text-figma-text-muted line-through">
               {originalPrice}
             </span>
           )}
@@ -166,7 +166,7 @@ export function FigmaProductCard({
         {/* Rating */}
         <div className="flex items-center gap-2">
           <Stars rating={rating} />
-          <span className="text-xs font-semibold text-[rgba(0,0,0,0.5)]">
+          <span className="text-xs font-semibold text-figma-text-muted">
             ({reviewCount})
           </span>
         </div>

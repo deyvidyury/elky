@@ -59,7 +59,24 @@
   /* Text */
   --color-figma-text: #000000;
   --color-figma-text-muted: rgba(0, 0, 0, 0.5);
+  --color-figma-text-secondary: rgba(0, 0, 0, 0.6);
   --color-figma-border: rgba(0, 0, 0, 0.1);
+  --color-figma-border-strong: rgba(0, 0, 0, 0.2);
+  --color-figma-placeholder: rgba(0, 0, 0, 0.3);
+  --color-figma-dark-placeholder: rgba(250, 250, 250, 0.3);
+  --color-figma-price-original: rgba(0, 0, 0, 0.4);
+
+  /* Dark-surface text & borders */
+  --color-figma-dark-muted: rgba(250, 250, 250, 0.7);
+  --color-figma-dark-muted-medium: rgba(250, 250, 250, 0.6);
+  --color-figma-dark-muted-strong: rgba(250, 250, 250, 0.5);
+  --color-figma-dark-muted-subtle: rgba(250, 250, 250, 0.4);
+  --color-figma-dark-border: rgba(250, 250, 250, 0.2);
+  --color-figma-dark-border-subtle: rgba(250, 250, 250, 0.1);
+
+  /* Star ratings */
+  --color-figma-star: #ffad33;
+  --color-figma-star-empty: #d1d5db;
 
   /* Figma Typography */
   --font-figma-heading: 'Inter', ui-sans-serif, system-ui, sans-serif;

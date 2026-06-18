@@ -73,3 +73,72 @@ export async function getAllProducts(limit?: number): Promise<Product[]> {
 
   return (data ?? []) as Product[];
 }
+
+/**
+ * Fetch a single category by its slug.
+ * Returns null if not found.
+ */
+export async function getCategoryBySlug(
+  slug: string
+): Promise<Category | null> {
+  const insforge = await createInsForgeServerClient();
+
+  const { data, error } = await insforge.database
+    .from('categories')
+    .select('*')
+    .eq('slug', slug)
+    .single();
+
+  if (error) {
+    console.error('getCategoryBySlug error:', error);
+    return null;
+  }
+
+  return (data ?? null) as Category | null;
+}
+
+/**
+ * Fetch a single product by its slug, with joined category.
+ * Returns null if not found.
+ */
+export async function getProductBySlug(
+  slug: string
+): Promise<Product | null> {
+  const insforge = await createInsForgeServerClient();
+
+  const { data, error } = await insforge.database
+    .from('products')
+    .select('*, categories(id, name, slug)')
+    .eq('slug', slug)
+    .single();
+
+  if (error) {
+    console.error('getProductBySlug error:', error);
+    return null;
+  }
+
+  return (data ?? null) as Product | null;
+}
+
+/**
+ * Fetch all products in a given category, with joined category data.
+ * Ordered by name.
+ */
+export async function getProductsByCategory(
+  categoryId: string
+): Promise<Product[]> {
+  const insforge = await createInsForgeServerClient();
+
+  const { data, error } = await insforge.database
+    .from('products')
+    .select('*, categories(id, name, slug)')
+    .eq('category_id', categoryId)
+    .order('name');
+
+  if (error) {
+    console.error('getProductsByCategory error:', error);
+    return [];
+  }
+
+  return (data ?? []) as Product[];
+}
