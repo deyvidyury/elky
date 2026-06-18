@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { createInsForgeServerClient } from '@/lib/insforge/server';
+import { getProductBySlug, getProductsByCategory } from '@/lib/data';
 import { ProductCard } from '@/components/ProductCard';
 import { AdUnit } from '@/components/AdUnit';
 import { Breadcrumb } from '@/components/Breadcrumb';
@@ -13,84 +13,51 @@ export async function generateMetadata({
   params,
 }: ProductPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const insforge = await createInsForgeServerClient();
-
-  const { data: product } = await insforge.database
-    .from('products')
-    .select('*, categories(id, name, slug)')
-    .eq('slug', slug)
-    .single();
+  const product = await getProductBySlug(slug);
 
   if (!product) return { title: 'Produto não encontrado' };
 
-  const p = product as Record<string, unknown>;
-  const desc = String(p.description ?? '').slice(0, 160);
-  const imageUrl = String(p.image_url ?? '');
+  const desc = product.description.slice(0, 160);
 
   return {
-    title: `${p.name} — ${p.price}`,
+    title: `${product.name} — ${product.price}`,
     description: desc,
     openGraph: {
-      title: String(p.name),
+      title: product.name,
       description: desc,
-      images: imageUrl ? [imageUrl] : [],
+      images: product.image_url ? [product.image_url] : [],
     },
   };
 }
 
 export default async function ProductPage({ params }: ProductPageProps) {
   const { slug } = await params;
-  const insforge = await createInsForgeServerClient();
 
-  const { data: product } = await insforge.database
-    .from('products')
-    .select('*, categories(id, name, slug)')
-    .eq('slug', slug)
-    .single();
+  const product = await getProductBySlug(slug);
 
   if (!product) {
     notFound();
   }
 
-  const p = product as {
-    id: string;
-    slug: string;
-    name: string;
-    category_id: string;
-    price: string;
-    image_url: string;
-    image_key: string;
-    description: string;
-    specs: Record<string, string>;
-    supplier: string | null;
-    featured: boolean;
-    categories: { id: string; name: string; slug: string } | null;
-  };
-
-  const categoryName = p.categories?.name ?? '';
-  const categorySlug = p.categories?.slug ?? '';
+  const categoryName = product.categories?.name ?? '';
+  const categorySlug = product.categories?.slug ?? '';
 
   // Related products (same category, excluding current)
-  const { data: related } = await insforge.database
-    .from('products')
-    .select('*, categories(id, name, slug)')
-    .eq('category_id', p.category_id)
-    .neq('id', p.id)
-    .limit(3)
-    .order('name');
-
-  const relatedProducts = (related ?? []) as (typeof p)[];
+  const allRelated = await getProductsByCategory(product.category_id);
+  const relatedProducts = allRelated
+    .filter((rp) => rp.id !== product.id)
+    .slice(0, 3);
 
   // JSON-LD structured data
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Product',
-    name: p.name,
-    description: p.description,
-    image: p.image_url,
+    name: product.name,
+    description: product.description,
+    image: product.image_url,
     offers: {
       '@type': 'Offer',
-      price: p.price.replace(/\D/g, ''),
+      price: product.price.replace(/\D/g, ''),
       priceCurrency: 'BRL',
     },
     category: categoryName,
@@ -113,7 +80,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
             label: categoryName,
             href: `/categorias/${categorySlug}`,
           },
-          { label: p.name, href: '#' },
+          { label: product.name, href: '#' },
         ]}
       />
 
@@ -137,10 +104,10 @@ export default async function ProductPage({ params }: ProductPageProps) {
               />
             </svg>
           </div>
-          {p.image_url && (
+          {product.image_url && (
             <img
-              src={p.image_url}
-              alt={p.name}
+              src={product.image_url}
+              alt={product.name}
               className="absolute inset-0 h-full w-full object-cover"
             />
           )}
@@ -153,13 +120,13 @@ export default async function ProductPage({ params }: ProductPageProps) {
         {/* Details */}
         <div>
           {/* Supplier */}
-          {p.supplier && (
+          {product.supplier && (
             <p className="text-sm font-semibold text-brand-600 uppercase tracking-wide mb-3">
-              {p.supplier}
+              {product.supplier}
             </p>
           )}
           <h1 className="font-display text-2xl font-bold text-gray-900 sm:text-3xl leading-tight">
-            {p.name}
+            {product.name}
           </h1>
 
           {/* Price */}
@@ -168,7 +135,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
               Preço de referência
             </p>
             <p className="mt-1 text-4xl font-extrabold text-brand-700">
-              {p.price}
+              {product.price}
             </p>
           </div>
 
@@ -191,7 +158,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
               Descrição
             </h2>
             <p className="mt-3 leading-relaxed text-gray-600">
-              {p.description}
+              {product.description}
             </p>
           </div>
 
@@ -201,7 +168,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
           </div>
 
           {/* Specifications */}
-          {p.specs && Object.keys(p.specs).length > 0 && (
+          {product.specs && Object.keys(product.specs).length > 0 && (
             <div className="mt-8">
               <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
                 <svg
@@ -222,7 +189,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
               <div className="mt-3 overflow-hidden rounded-xl border border-gray-200">
                 <table className="w-full text-sm">
                   <tbody className="divide-y divide-gray-100">
-                    {Object.entries(p.specs).map(([key, value], i) => (
+                    {Object.entries(product.specs).map(([key, value], i) => (
                       <tr
                         key={key}
                         className={i % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}
@@ -240,7 +207,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
           )}
 
           {/* Supplier info */}
-          {p.supplier && (
+          {product.supplier && (
             <div className="mt-8 rounded-xl border border-brand-200 bg-linear-to-r from-brand-50 to-white p-5 flex items-start gap-3">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-100 text-brand-700">
                 <svg
@@ -261,7 +228,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
                 <p className="text-sm font-semibold text-brand-800">
                   Fornecedor
                 </p>
-                <p className="text-sm text-brand-600 mt-0.5">{p.supplier}</p>
+                <p className="text-sm text-brand-600 mt-0.5">{product.supplier}</p>
               </div>
             </div>
           )}

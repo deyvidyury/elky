@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { createInsForgeServerClient } from '@/lib/insforge/server';
+import { getCategoryBySlug, getProductsByCategory } from '@/lib/data';
 import { ProductCard } from '@/components/ProductCard';
 import { AdUnit } from '@/components/AdUnit';
 import Link from 'next/link';
@@ -13,64 +13,26 @@ export async function generateMetadata({
   params,
 }: CategoryPageProps): Promise<Metadata> {
   const { category } = await params;
-  const insforge = await createInsForgeServerClient();
-
-  const { data: cat } = await insforge.database
-    .from('categories')
-    .select('*')
-    .eq('slug', category)
-    .single();
+  const cat = await getCategoryBySlug(category);
 
   if (!cat) return { title: 'Categoria não encontrada' };
 
   return {
-    title: `${(cat as { name: string }).name} — Suprimentos para Restaurantes`,
-    description: (cat as { description: string }).description,
+    title: `${cat.name} — Suprimentos para Restaurantes`,
+    description: cat.description,
   };
 }
 
 export default async function CategoriaPage({ params }: CategoryPageProps) {
   const { category } = await params;
-  const insforge = await createInsForgeServerClient();
 
-  const { data: cat } = await insforge.database
-    .from('categories')
-    .select('*')
-    .eq('slug', category)
-    .single();
+  const cat = await getCategoryBySlug(category);
 
   if (!cat) {
     notFound();
   }
 
-  const c = cat as {
-    id: string;
-    slug: string;
-    name: string;
-    description: string;
-    icon: string;
-  };
-
-  const { data: catProducts } = await insforge.database
-    .from('products')
-    .select('*, categories(id, name, slug)')
-    .eq('category_id', c.id)
-    .order('name');
-
-  const products = (catProducts ?? []) as Array<{
-    id: string;
-    slug: string;
-    name: string;
-    category_id: string;
-    price: string;
-    image_url: string;
-    image_key: string;
-    description: string;
-    specs: Record<string, string>;
-    supplier: string | null;
-    featured: boolean;
-    categories: { id: string; name: string; slug: string } | null;
-  }>;
+  const products = await getProductsByCategory(cat.id);
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
@@ -92,13 +54,13 @@ export default async function CategoriaPage({ params }: CategoryPageProps) {
 
       <div className="flex items-center gap-5 mb-10">
         <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl bg-brand-50 text-4xl">
-          {c.icon}
+          {cat.icon}
         </div>
         <div>
           <h1 className="font-display text-3xl font-bold text-gray-900 sm:text-4xl">
-            {c.name}
+            {cat.name}
           </h1>
-          <p className="mt-2 text-gray-500 max-w-xl">{c.description}</p>
+          <p className="mt-2 text-gray-500 max-w-xl">{cat.description}</p>
         </div>
       </div>
 
@@ -120,7 +82,7 @@ export default async function CategoriaPage({ params }: CategoryPageProps) {
           {products.length > 4 && (
             <>
               <div className="mt-8">
-                <AdUnit slot={`categoria-${c.slug}`} />
+                <AdUnit slot={`categoria-${cat.slug}`} />
               </div>
               <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 {products.slice(4).map((product) => (

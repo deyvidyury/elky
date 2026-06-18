@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
-import { createInsForgeServerClient } from '@/lib/insforge/server';
-import type { Category } from '@/lib/categories';
+import { getCategories, getAllProducts } from '@/lib/data';
 import { ProductCard } from '@/components/ProductCard';
 import { AdUnit } from '@/components/AdUnit';
 import Link from 'next/link';
@@ -12,34 +11,10 @@ export const metadata: Metadata = {
 };
 
 export default async function ProdutosPage() {
-  const insforge = await createInsForgeServerClient();
-
-  const { data: allProducts } = await insforge.database
-    .from('products')
-    .select('*, categories(id, name, slug)')
-    .order('name');
-
-  const { data: categories } = await insforge.database
-    .from('categories')
-    .select('*')
-    .order('name');
-
-  const products = (allProducts ?? []) as Array<{
-    id: string;
-    slug: string;
-    name: string;
-    category_id: string;
-    price: string;
-    image_url: string;
-    image_key: string;
-    description: string;
-    specs: Record<string, string>;
-    supplier: string | null;
-    featured: boolean;
-    categories: { id: string; name: string; slug: string } | null;
-  }>;
-
-  const allCategories = (categories ?? []) as Category[];
+  const [products, allCategories] = await Promise.all([
+    getAllProducts(),
+    getCategories(),
+  ]);
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
