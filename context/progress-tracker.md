@@ -11,16 +11,16 @@ Last updated: 2026-06-17
 
 ---
 
-## Phase 1 — Shared Data Core ⬜
+## Phase 1 — Shared Data Core ✅
 
 | #   | Task                                               | Status |
 | --- | -------------------------------------------------- | ------ |
-| 1.1 | Create `src/lib/data.ts` with `getCategories()`    | ⬜     |
-| 1.2 | Add `getFeaturedProducts(limit?)` to `lib/data.ts` | ⬜     |
-| 1.3 | Add `getAllProducts(limit?)` to `lib/data.ts`      | ⬜     |
-| 1.4 | Update main `page.tsx` to import from `lib/data`   | ⬜     |
-| 1.5 | Update `figma/page.tsx` to import from `lib/data`  | ⬜     |
-| 1.6 | Verify: `npm run build`                            | ⬜     |
+| 1.1 | Create `src/lib/data.ts` with `getCategories()`    | ✅     |
+| 1.2 | Add `getFeaturedProducts(limit?)` to `lib/data.ts` | ✅     |
+| 1.3 | Add `getAllProducts(limit?)` to `lib/data.ts`      | ✅     |
+| 1.4 | Update main `page.tsx` to import from `lib/data`   | ✅     |
+| 1.5 | Update `figma/page.tsx` to import from `lib/data`  | ✅     |
+| 1.6 | Verify: `npm run build`                            | ✅     |
 
 ## Phase 2 — Main Route Group ⬜
 

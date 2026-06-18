@@ -1,6 +1,5 @@
 import Link from 'next/link';
-import { createInsForgeServerClient } from '@/lib/insforge/server';
-import type { Category } from '@/lib/categories';
+import { getCategories, getFeaturedProducts } from '@/lib/data';
 import { ProductCard } from '@/components/ProductCard';
 import { AdUnit } from '@/components/AdUnit';
 
@@ -85,34 +84,8 @@ const trustBadges = [
 ];
 
 export default async function HomePage() {
-  const insforge = await createInsForgeServerClient();
-
-  const { data: categories } = await insforge.database
-    .from('categories')
-    .select('*')
-    .order('name');
-
-  const { data: featured } = await insforge.database
-    .from('products')
-    .select('*, categories(id, name, slug)')
-    .eq('featured', true)
-    .order('name');
-
-  const allCategories = (categories ?? []) as Category[];
-  const featuredProducts = (featured ?? []) as Array<{
-    id: string;
-    slug: string;
-    name: string;
-    category_id: string;
-    price: string;
-    image_url: string;
-    image_key: string;
-    description: string;
-    specs: Record<string, string>;
-    supplier: string | null;
-    featured: boolean;
-    categories: { id: string; name: string; slug: string } | null;
-  }>;
+  const allCategories = await getCategories();
+  const featuredProducts = await getFeaturedProducts();
 
   return (
     <>

@@ -1,6 +1,5 @@
 import Link from 'next/link';
-import { createInsForgeServerClient } from '@/lib/insforge/server';
-import type { Category } from '@/lib/categories';
+import { getCategories, getFeaturedProducts, getAllProducts } from '@/lib/data';
 import { FigmaProductCard } from '@/components/FigmaProductCard';
 
 /** Red bar + label used as section eyebrow (e.g., "Today's", "This Month") */
@@ -99,42 +98,9 @@ const services = [
 ];
 
 export default async function FigmaHomePage() {
-  const insforge = await createInsForgeServerClient();
-
-  const { data: categories } = await insforge.database
-    .from('categories')
-    .select('*')
-    .order('name');
-
-  const { data: featured } = await insforge.database
-    .from('products')
-    .select('*, categories(id, name, slug)')
-    .eq('featured', true)
-    .order('name')
-    .limit(4);
-
-  const { data: allProducts } = await insforge.database
-    .from('products')
-    .select('*, categories(id, name, slug)')
-    .order('name')
-    .limit(8);
-
-  const allCategories = (categories ?? []) as Category[];
-  const featuredProducts = (featured ?? []) as Array<{
-    id: string;
-    slug: string;
-    name: string;
-    category_id: string;
-    price: string;
-    image_url: string;
-    image_key: string;
-    description: string;
-    specs: Record<string, string>;
-    supplier: string | null;
-    featured: boolean;
-    categories: { id: string; name: string; slug: string } | null;
-  }>;
-  const products = (allProducts ?? []) as typeof featuredProducts;
+  const allCategories = await getCategories();
+  const featuredProducts = await getFeaturedProducts(4);
+  const products = await getAllProducts(8);
 
   return (
     <>
