@@ -1,9 +1,6 @@
 import type { Metadata } from 'next';
 import Script from 'next/script';
 import './globals.css';
-import { HeaderSwitcher } from '@/components/HeaderSwitcher';
-import { FooterSwitcher } from '@/components/FooterSwitcher';
-import { createInsForgeServerClient } from '@/lib/insforge/server';
 
 export const metadata: Metadata = {
   title: {
@@ -25,16 +22,11 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  // Fetch user server-side so the header never flashes the wrong auth state
-  const insforge = await createInsForgeServerClient();
-  const { data } = await insforge.auth.getCurrentUser();
-  const serverUser = data?.user ?? null;
-
   return (
     <html lang="pt-BR">
       <head>
@@ -57,11 +49,7 @@ export default async function RootLayout({
           strategy="afterInteractive"
         />
       </head>
-      <body className="flex min-h-screen flex-col">
-        <HeaderSwitcher serverUser={serverUser} />
-        <main className="flex-1">{children}</main>
-        <FooterSwitcher />
-      </body>
+      <body className="flex min-h-screen flex-col">{children}</body>
     </html>
   );
 }

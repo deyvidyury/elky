@@ -22,20 +22,20 @@ Last updated: 2026-06-17
 | 1.5 | Update `figma/page.tsx` to import from `lib/data`  | ✅     |
 | 1.6 | Verify: `npm run build`                            | ✅     |
 
-## Phase 2 — Main Route Group ⬜
+## Phase 2 — Main Route Group ✅
 
 | #    | Task                                                            | Status |
 | ---- | --------------------------------------------------------------- | ------ |
-| 2.1  | Create `src/app/(main)/layout.tsx` (Header + children + Footer) | ⬜     |
-| 2.2  | Move `page.tsx` into `(main)/`                                  | ⬜     |
-| 2.3  | Move `produtos/` into `(main)/`                                 | ⬜     |
-| 2.4  | Move `categorias/` into `(main)/`                               | ⬜     |
-| 2.5  | Move `sobre/` into `(main)/`                                    | ⬜     |
-| 2.6  | Move `contato/` into `(main)/`                                  | ⬜     |
-| 2.7  | Move `politica-de-privacidade/` into `(main)/`                  | ⬜     |
-| 2.8  | Move `termos-de-uso/` into `(main)/`                            | ⬜     |
-| 2.9  | Update root `layout.tsx` — remove HeaderSwitcher/FooterSwitcher | ⬜     |
-| 2.10 | Verify: `npm run build` — main routes work                      | ⬜     |
+| 2.1  | Create `src/app/(main)/layout.tsx` (Header + children + Footer) | ✅     |
+| 2.2  | Move `page.tsx` into `(main)/`                                  | ✅     |
+| 2.3  | Move `produtos/` into `(main)/`                                 | ✅     |
+| 2.4  | Move `categorias/` into `(main)/`                               | ✅     |
+| 2.5  | Move `sobre/` into `(main)/`                                    | ✅     |
+| 2.6  | Move `contato/` into `(main)/`                                  | ✅     |
+| 2.7  | Move `politica-de-privacidade/` into `(main)/`                  | ✅     |
+| 2.8  | Move `termos-de-uso/` into `(main)/`                            | ✅     |
+| 2.9  | Update root `layout.tsx` — remove HeaderSwitcher/FooterSwitcher | ✅     |
+| 2.10 | Verify: `npm run build` — main routes work                      | ✅     |
 
 ## Phase 3 — Figma Layout Cleanup ⬜
 
