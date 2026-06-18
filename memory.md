@@ -1,39 +1,38 @@
-# Memory — Phase 2 Complete: Main Route Group
+# Memory — Phase 3 Complete: Figma Layout Cleanup
 
-Last updated: 2026-06-17
+Last updated: 2026-06-18
 
 ## What was built
 
-- **`src/app/(main)/layout.tsx`** — Main route group layout. Renders `Header` + `<main>` + `Footer`. Fetches user server-side and passes `serverUser` to Header. No more HeaderSwitcher.
-- **Moved 7 pages into `(main)/` route group**: `page.tsx`, `produtos/`, `categorias/`, `sobre/`, `contato/`, `politica-de-privacidade/`, `termos-de-uso/`
-- **Updated root `layout.tsx`** — removed `HeaderSwitcher`, `FooterSwitcher`, `createInsForgeServerClient`, and user fetching. Now only the HTML shell: `<html>`, `<head>` with fonts, `<body>` with `{children}`. No longer an async component.
-- **`HeaderSwitcher.tsx` and `FooterSwitcher.tsx`** still exist but are no longer imported anywhere.
+- **Updated `src/app/figma/layout.tsx`** — Now fetches user server-side and renders `FigmaHeader` + `<main>` + `FigmaFooter`, mirroring the `(main)/layout.tsx` pattern exactly.
+- **Deleted `HeaderSwitcher.tsx`** — No longer imported anywhere. Each route group now owns its own header.
+- **Deleted `FooterSwitcher.tsx`** — Same reason, no longer needed.
 
 ## Decisions made
 
-- Auth fetching moved from root layout to `(main)/layout.tsx` — each route group layout is responsible for its own header data
-- Root layout is now a pure shell — no data fetching, no conditional rendering
-- `(main)/layout.tsx` mirrors the pattern that `admin/layout.tsx` already used: fetch user, render header with it
+- Figma layout now does server-side auth fetching the same way main layout does — consistent pattern across route groups
+- No more switcher components in the project — each route group layout is self-contained
 
 ## Problems solved
 
-- None encountered — straightforward file moves and layout restructuring
+- None encountered — straightforward layout update and file deletion
 
 ## Current state
 
 - Phase 1 ✅ — Shared data core
-- Phase 2 ✅ — Main route group (build passes, 18/18 pages)
-- Phase 3–5 still ⬜ (12 tasks remaining)
-- `HeaderSwitcher.tsx` and `FooterSwitcher.tsx` still exist — to be deleted in Phase 3
-- Figma layout still renders only `{children}` — to be updated in Phase 3
-- All URLs unchanged (route groups don't affect URLs)
+- Phase 2 ✅ — Main route group
+- Phase 3 ✅ — Figma layout cleanup (build passes, 18/18 pages)
+- Phase 4–5 still ⬜ (11 tasks remaining)
+- All three route group layouts are now clean:
+  - Root layout: pure HTML shell
+  - `(main)/layout.tsx`: Header + children + Footer (with serverUser)
+  - `figma/layout.tsx`: FigmaHeader + children + FigmaFooter (with serverUser)
+  - `admin/layout.tsx`: AdminSidebar + children (auth guard)
 
 ## Next session starts with
 
 1. Run `/remember restore`
-2. Read `context/build-plan.md` and `context/progress-tracker.md`
-3. Start Phase 3 — update `figma/layout.tsx` to render FigmaHeader + FigmaFooter, delete HeaderSwitcher.tsx and FooterSwitcher.tsx
-4. Verify with `npm run build`
+2. Phase 4 — Transition Links: add "Ver design alternativo" link in Footer.tsx, "Ver design principal" link in FigmaFooter.tsx
 
 ## Open questions
 

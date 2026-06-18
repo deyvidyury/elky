@@ -37,14 +37,14 @@ Last updated: 2026-06-17
 | 2.9  | Update root `layout.tsx` — remove HeaderSwitcher/FooterSwitcher | ✅     |
 | 2.10 | Verify: `npm run build` — main routes work                      | ✅     |
 
-## Phase 3 — Figma Layout Cleanup ⬜
+## Phase 3 — Figma Layout Cleanup ✅
 
 | #   | Task                                                                     | Status |
 | --- | ------------------------------------------------------------------------ | ------ |
-| 3.1 | Update `figma/layout.tsx` to render FigmaHeader + children + FigmaFooter | ⬜     |
-| 3.2 | Delete `HeaderSwitcher.tsx`                                              | ⬜     |
-| 3.3 | Delete `FooterSwitcher.tsx`                                              | ⬜     |
-| 3.4 | Verify: `npm run build` — /figma renders with correct header/footer      | ⬜     |
+| 3.1 | Update `figma/layout.tsx` to render FigmaHeader + children + FigmaFooter | ✅     |
+| 3.2 | Delete `HeaderSwitcher.tsx`                                              | ✅     |
+| 3.3 | Delete `FooterSwitcher.tsx`                                              | ✅     |
+| 3.4 | Verify: `npm run build` — /figma renders with correct header/footer      | ✅     |
 
 ## Phase 4 — Transition Links ⬜
 
