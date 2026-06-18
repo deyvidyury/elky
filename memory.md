@@ -1,36 +1,46 @@
-# Memory — Phase 4 Complete: Transition Links + Commit Fix
+# Memory — Phase 5 Complete: Figma Secondary Pages
 
 Last updated: 2026-06-18
 
 ## What was built
 
-- **Fixed commit message** — amended last commit from "phase 4" to "phase 3" (now `4508a2a`). Not yet pushed to remote.
-- **Updated `src/components/Footer.tsx`** — Added "Ver design alternativo" link to `/figma` in the bottom bar, separated by a dot from the cookie/privacy notice.
-- **Updated `src/components/FigmaFooter.tsx`** — Added "Ver design principal" link to `/` below the copyright line.
-- **Updated `context/progress-tracker.md`** — Phase 4 marked complete.
+- **7 figma secondary pages created:**
+  - `src/app/figma/produtos/page.tsx` — full product listing with category chips, `FigmaProductCard` grid, empty state
+  - `src/app/figma/categorias/[category]/page.tsx` — category filter page with active chip highlighting, product grid, empty state
+  - `src/app/figma/produtos/[category]/[slug]/page.tsx` — product detail with image, specs table, related products, JSON-LD, discount display
+  - `src/app/figma/sobre/page.tsx` — static about page with figma styling
+  - `src/app/figma/contato/page.tsx` — contact form + sidebar with figma styling
+  - `src/app/figma/politica-de-privacidade/page.tsx` — privacy policy with figma styling
+  - `src/app/figma/termos-de-uso/page.tsx` — terms of use with figma styling
+- **Build passes clean** — 23/23 pages generated (up from 18)
 
 ## Decisions made
 
-- Transition links are placed subtly in the footer bottom bar — not in main navigation, as specified in build plan.
-- Links are styled to match each footer's design system (main: `text-gray-500 hover:text-accent-300`, figma: `text-[rgba(250,250,250,0.4)] hover:text-[#db4444]`).
+- `SectionEyebrow` defined locally in each figma page that needs it (not extracted to shared component) — keeps pages self-contained, avoids touching existing files
+- Product detail page uses a helper `formatDiscountedPrice()` to show original price with line-through for visual appeal
+- Category filter chips highlight the active category with `bg-[#db4444]` fill, matching the figma design system
+- Static pages mirror content from main counterparts exactly but use figma tokens (rounded-[4px], `text-[#2f2e30]`, `text-[#db4444]`, `text-[rgba(0,0,0,0.5)]`)
+- Related products on detail page: 4 products from same category, excluding current
 
 ## Problems solved
 
-- None encountered — straightforward additions.
+- None encountered — all pages compiled on first build
 
 ## Current state
 
 - Phase 1 ✅ — Shared data core
 - Phase 2 ✅ — Main route group
 - Phase 3 ✅ — Figma layout cleanup
-- Phase 4 ✅ — Transition links (build passes, 18/18 pages)
-- Phase 5 ⬜ — Figma Secondary Pages (8 tasks remaining)
+- Phase 4 ✅ — Transition links
+- Phase 5 ✅ — Figma Secondary Pages (23/23 pages, build clean)
+- All phases complete. Project has full parity between main and figma frontends.
 - Commits not yet pushed to origin/main
 
 ## Next session starts with
 
 1. Run `/remember restore`
-2. Phase 5 — Figma Secondary Pages: 7 pages to create under `/figma/` (produtos listing, category filter, product detail, sobre, contato, política de privacidade, termos de uso), each using Figma design system components
+2. Review and polish — run `/review` to audit the complete dual-frontend build
+3. Consider pushing commits to origin/main if ready for deployment
 
 ## Open questions
 

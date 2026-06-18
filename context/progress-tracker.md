@@ -1,6 +1,6 @@
 # Progress Tracker — Dual Frontend Architecture
 
-Last updated: 2026-06-17
+Last updated: 2026-06-18
 
 ## Legend
 
@@ -54,15 +54,15 @@ Last updated: 2026-06-17
 | 4.2 | Add "Ver design principal" → `/` in `FigmaFooter.tsx`   | ✅     |
 | 4.3 | Verify: navigate between frontends via footer           | ✅     |
 
-## Phase 5 — Figma Secondary Pages ⬜
+## Phase 5 — Figma Secondary Pages ✅
 
 | #   | Task                                                         | Status |
 | --- | ------------------------------------------------------------ | ------ |
-| 5.1 | Create `/figma/produtos/page.tsx` (listing)                  | ⬜     |
-| 5.2 | Create `/figma/categorias/[category]/page.tsx`               | ⬜     |
-| 5.3 | Create `/figma/produtos/[category]/[slug]/page.tsx` (detail) | ⬜     |
-| 5.4 | Create `/figma/sobre/page.tsx`                               | ⬜     |
-| 5.5 | Create `/figma/contato/page.tsx`                             | ⬜     |
-| 5.6 | Create `/figma/politica-de-privacidade/page.tsx`             | ⬜     |
-| 5.7 | Create `/figma/termos-de-uso/page.tsx`                       | ⬜     |
-| 5.8 | Verify: full build, navigate all figma routes                | ⬜     |
+| 5.1 | Create `/figma/produtos/page.tsx` (listing)                  | ✅     |
+| 5.2 | Create `/figma/categorias/[category]/page.tsx`               | ✅     |
+| 5.3 | Create `/figma/produtos/[category]/[slug]/page.tsx` (detail) | ✅     |
+| 5.4 | Create `/figma/sobre/page.tsx`                               | ✅     |
+| 5.5 | Create `/figma/contato/page.tsx`                             | ✅     |
+| 5.6 | Create `/figma/politica-de-privacidade/page.tsx`             | ✅     |
+| 5.7 | Create `/figma/termos-de-uso/page.tsx`                       | ✅     |
+| 5.8 | Verify: full build, navigate all figma routes                | ✅     |
