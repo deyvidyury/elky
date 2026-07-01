@@ -1,8 +1,10 @@
 'use server';
 
 import { cookies, headers } from 'next/headers';
+import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { createAuthActions } from '@insforge/sdk/ssr';
+import { createInsForgeServerClient } from '@/lib/insforge/server';
 
 const baseUrl = process.env.NEXT_PUBLIC_INSFORGE_URL!;
 const anonKey = process.env.NEXT_PUBLIC_INSFORGE_ANON_KEY!;
@@ -53,4 +55,72 @@ export async function signOut() {
   });
   await auth.signOut();
   redirect('/');
+}
+
+export async function createProduct(payload: Record<string, unknown>) {
+  const insforge = await createInsForgeServerClient();
+  const { data, error } = await insforge.database
+    .from('products')
+    .insert([payload])
+    .select();
+
+  if (error) return { success: false, error: error.message };
+  // ponytail: RLS can silently block writes — validate data was returned
+  if (!data || data.length === 0) return { success: false, error: 'Permissão negada. Verifique se você está autenticado como administrador.' };
+
+  revalidatePath('/admin/produtos');
+  return { success: true };
+}
+
+export async function updateProduct(
+  productId: string,
+  payload: Record<string, unknown>,
+) {
+  const insforge = await createInsForgeServerClient();
+  const { data, error } = await insforge.database
+    .from('products')
+    .update(payload)
+    .eq('id', productId)
+    .select();
+
+  if (error) return { success: false, error: error.message };
+  // ponytail: RLS can silently block writes — validate data was returned
+  if (!data || data.length === 0) return { success: false, error: 'Permissão negada. Verifique se você está autenticado como administrador.' };
+
+  revalidatePath('/admin/produtos');
+  return { success: true };
+}
+
+export async function createCategory(payload: Record<string, unknown>) {
+  const insforge = await createInsForgeServerClient();
+  const { data, error } = await insforge.database
+    .from('categories')
+    .insert([payload])
+    .select();
+
+  if (error) return { success: false, error: error.message };
+  // ponytail: RLS can silently block writes
+  if (!data || data.length === 0) return { success: false, error: 'Permissão negada. Verifique se você está autenticado como administrador.' };
+
+  revalidatePath('/admin/categorias');
+  return { success: true };
+}
+
+export async function updateCategory(
+  categoryId: string,
+  payload: Record<string, unknown>,
+) {
+  const insforge = await createInsForgeServerClient();
+  const { data, error } = await insforge.database
+    .from('categories')
+    .update(payload)
+    .eq('id', categoryId)
+    .select();
+
+  if (error) return { success: false, error: error.message };
+  // ponytail: RLS can silently block writes
+  if (!data || data.length === 0) return { success: false, error: 'Permissão negada. Verifique se você está autenticado como administrador.' };
+
+  revalidatePath('/admin/categorias');
+  return { success: true };
 }

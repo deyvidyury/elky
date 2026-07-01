@@ -73,4 +73,4 @@ Last updated: 2026-07-01
 | --- | ------------------------------------------------------------------------------------------------------------------------------------------- | ------ |
 | 6.1 | Figma header: remove Wishlist (heart) and Cart icons/buttons from navbar (`FigmaHeader.tsx`)                                                | ✅     |
 | 6.2 | Admin sidebar "Home" links should return to previous frontend (main `/` or figma `/figma`) instead of always `/`                            | ✅     |
-| 6.3 | Product form: add AI button next to description field that generates a professional, commercial description based on already-entered fields | ⬜     |
+| 6.3 | Product form: add AI button next to description field that generates a professional, commercial description based on already-entered fields | ✅     |

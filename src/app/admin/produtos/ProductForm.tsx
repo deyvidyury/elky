@@ -1,8 +1,9 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { insforge } from '@/lib/insforge/client';
+import { createProduct, updateProduct } from '@/lib/insforge/actions';
 
 interface Spec {
   key: string;
@@ -41,11 +42,12 @@ interface ProductFormProps {
 export function ProductForm({ mode, categories, product }: ProductFormProps) {
   const router = useRouter();
   const [saving, setSaving] = useState(false);
+  const [generating, setGenerating] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>(
     product?.image_url ?? '',
   );
-  const [form, setForm] = useState<ProductFormData>({
+  const formRef = useRef<ProductFormData>({
     name: product?.name ?? '',
     slug: product?.slug ?? '',
     category_id: product?.category_id ?? categories[0]?.id ?? '',
@@ -58,8 +60,14 @@ export function ProductForm({ mode, categories, product }: ProductFormProps) {
       : [{ key: '', value: '' }],
   });
 
+  const [form, setForm] = useState<ProductFormData>(formRef.current);
+
   function updateField(field: keyof ProductFormData, value: string | boolean) {
-    setForm((prev) => ({ ...prev, [field]: value }));
+    setForm((prev) => {
+      const next = { ...prev, [field]: value };
+      formRef.current = next;
+      return next;
+    });
   }
 
   function generateSlug(name: string) {
@@ -88,21 +96,65 @@ export function ProductForm({ mode, categories, product }: ProductFormProps) {
   function updateSpec(index: number, field: 'key' | 'value', val: string) {
     const newSpecs = [...form.specs];
     newSpecs[index] = { ...newSpecs[index], [field]: val };
-    setForm((prev) => ({ ...prev, specs: newSpecs }));
+    setForm((prev) => {
+      const next = { ...prev, specs: newSpecs };
+      formRef.current = next;
+      return next;
+    });
   }
 
   function addSpec() {
-    setForm((prev) => ({
-      ...prev,
-      specs: [...prev.specs, { key: '', value: '' }],
-    }));
+    setForm((prev) => {
+      const next = { ...prev, specs: [...prev.specs, { key: '', value: '' }] };
+      formRef.current = next;
+      return next;
+    });
   }
 
   function removeSpec(index: number) {
-    setForm((prev) => ({
-      ...prev,
-      specs: prev.specs.filter((_, i) => i !== index),
-    }));
+    setForm((prev) => {
+      const next = { ...prev, specs: prev.specs.filter((_, i) => i !== index) };
+      formRef.current = next;
+      return next;
+    });
+  }
+
+  async function generateDescription() {
+    setGenerating(true);
+    try {
+      // ponytail: read from ref so we always send the latest fields to AI
+      const f = formRef.current;
+      const categoryName =
+        categories.find((c) => c.id === f.category_id)?.name ?? '';
+
+      const specStr = f.specs
+        .filter((s) => s.key.trim())
+        .map((s) => `${s.key.trim()}: ${s.value.trim()}`)
+        .join(', ');
+
+      const res = await fetch('/api/generate-description', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: f.name,
+          category: categoryName,
+          price: f.price,
+          supplier: f.supplier,
+          specs: specStr,
+        }),
+      });
+
+      const data = await res.json();
+      if (data.description) {
+        updateField('description', data.description);
+      } else {
+        alert(data.error ?? 'Erro ao gerar descrição.');
+      }
+    } catch {
+      alert('Erro ao conectar com o gerador de IA.');
+    } finally {
+      setGenerating(false);
+    }
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -133,44 +185,42 @@ export function ProductForm({ mode, categories, product }: ProductFormProps) {
       imageUrl = uploadData.url;
     }
 
+    // ponytail: read from ref to avoid stale closure after AI generation
+    const f = formRef.current;
+
     const specsObj: Record<string, string> = {};
-    for (const spec of form.specs) {
+    for (const spec of f.specs) {
       if (spec.key.trim()) {
         specsObj[spec.key.trim()] = spec.value.trim();
       }
     }
 
     const payload = {
-      name: form.name,
-      slug: form.slug,
-      category_id: form.category_id,
-      price: form.price,
-      description: form.description,
-      supplier: form.supplier || null,
-      featured: form.featured,
+      name: f.name,
+      slug: f.slug,
+      category_id: f.category_id,
+      price: f.price,
+      description: f.description,
+      supplier: f.supplier || null,
+      featured: f.featured,
       specs: specsObj,
       image_key: imageKey,
       image_url: imageUrl,
     };
 
     if (mode === 'create') {
-      const { error } = await insforge.database
-        .from('products')
-        .insert(payload);
+      const result = await createProduct(payload);
 
-      if (error) {
-        alert('Erro ao criar: ' + error.message);
+      if (!result.success) {
+        alert('Erro ao criar: ' + (result.error ?? 'desconhecido'));
         setSaving(false);
         return;
       }
     } else {
-      const { error } = await insforge.database
-        .from('products')
-        .update(payload)
-        .eq('id', product!.id);
+      const result = await updateProduct(product!.id, payload);
 
-      if (error) {
-        alert('Erro ao salvar: ' + error.message);
+      if (!result.success) {
+        alert('Erro ao salvar: ' + (result.error ?? 'desconhecido'));
         setSaving(false);
         return;
       }
@@ -249,14 +299,69 @@ export function ProductForm({ mode, categories, product }: ProductFormProps) {
 
         {/* Description */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">
-            Descrição
-          </label>
+          <div className="flex items-center gap-3 mb-1.5">
+            <label className="block text-sm font-medium text-gray-700">
+              Descrição
+            </label>
+            <button
+              type="button"
+              onClick={generateDescription}
+              disabled={generating || !form.name}
+              className="inline-flex items-center gap-1.5 rounded-md bg-brand-50 px-3 py-1 text-xs font-medium text-brand-700 hover:bg-brand-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              title={
+                form.name
+                  ? 'Gerar descrição com IA'
+                  : 'Preencha o nome do produto primeiro'
+              }
+            >
+              {generating ? (
+                <>
+                  <svg
+                    className="h-3.5 w-3.5 animate-spin"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                    />
+                  </svg>
+                  Gerando...
+                </>
+              ) : (
+                <>
+                  <svg
+                    className="h-3.5 w-3.5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z"
+                    />
+                  </svg>
+                  Gerar com IA
+                </>
+              )}
+            </button>
+          </div>
           <textarea
             value={form.description}
             onChange={(e) => updateField('description', e.target.value)}
             required
-            rows={4}
+            rows={10}
             className="block w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 outline-none transition-shadow resize-none"
             placeholder="Descrição detalhada do produto..."
           />

@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { insforge } from '@/lib/insforge/client';
+import { createCategory, updateCategory } from '@/lib/insforge/actions';
 
 const EMOJI_OPTIONS = [
   '🧹',
@@ -74,40 +74,25 @@ export function CategoryForm({ mode, category }: CategoryFormProps) {
     e.preventDefault();
     setSaving(true);
 
-    if (mode === 'create') {
-      const { error } = await insforge.database.from('categories').insert({
-        name: form.name,
-        slug: form.slug,
-        description: form.description,
-        icon: form.icon,
-      });
+    const payload = {
+      name: form.name,
+      slug: form.slug,
+      description: form.description,
+      icon: form.icon,
+    };
 
-      if (error) {
-        alert('Erro ao criar: ' + error.message);
-        setSaving(false);
-        return;
-      }
-      router.push('/admin/categorias');
-    } else {
-      const { error } = await insforge.database
-        .from('categories')
-        .update({
-          name: form.name,
-          slug: form.slug,
-          description: form.description,
-          icon: form.icon,
-        })
-        .eq('id', category!.id);
+    const result =
+      mode === 'create'
+        ? await createCategory(payload)
+        : await updateCategory(category!.id, payload);
 
-      if (error) {
-        alert('Erro ao salvar: ' + error.message);
-        setSaving(false);
-        return;
-      }
-      router.push('/admin/categorias');
+    if (!result.success) {
+      alert('Erro ao salvar: ' + (result.error ?? 'desconhecido'));
+      setSaving(false);
+      return;
     }
 
-    router.refresh();
+    router.push('/admin/categorias');
   }
 
   return (

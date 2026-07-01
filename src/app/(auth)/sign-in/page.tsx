@@ -8,6 +8,10 @@ function SignInContent() {
   const searchParams = useSearchParams();
   const error = searchParams.get('error');
 
+  async function handleSignIn() {
+    await initiateOAuth('google');
+  }
+
   return (
     <div className="mx-auto max-w-md px-4 py-20 sm:py-28">
       <div className="rounded-2xl border border-gray-200 bg-white p-8 shadow-sm text-center">
@@ -48,7 +52,7 @@ function SignInContent() {
           </div>
         )}
 
-        <form action={initiateOAuth.bind(null, 'google')} className="mt-8">
+        <form action={handleSignIn} className="mt-8">
           <button
             type="submit"
             className="inline-flex items-center gap-3 rounded-lg border border-gray-300 bg-white px-6 py-3 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 transition-colors"
