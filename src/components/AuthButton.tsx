@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { insforge } from '@/lib/insforge/client';
 import { signOut } from '@/lib/insforge/actions';
 
@@ -23,6 +24,9 @@ interface AuthButtonProps {
 }
 
 export function AuthButton({ serverUser }: AuthButtonProps) {
+  const pathname = usePathname();
+  const fromParam = pathname.startsWith('/figma') ? '?from=/figma' : '';
+
   const [state, setState] = useState<AuthState>({
     user: serverUser ?? null,
     loading: !serverUser,
@@ -68,7 +72,7 @@ export function AuthButton({ serverUser }: AuthButtonProps) {
       <div className="flex items-center gap-1.5">
         {isAdmin && (
           <Link
-            href="/admin"
+            href={`/admin${fromParam}`}
             className="inline-flex items-center gap-1 rounded-lg bg-brand-700 px-3 py-1.5 text-xs font-semibold text-white hover:bg-brand-800 transition-colors"
           >
             <svg

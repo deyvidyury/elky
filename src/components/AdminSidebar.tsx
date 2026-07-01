@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import { SignOutButton } from '@/app/admin/SignOutButton';
 
 interface AdminSidebarProps {
@@ -18,6 +18,8 @@ interface AdminSidebarProps {
 export function AdminSidebar({ children, user, isAdmin }: AdminSidebarProps) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const homeHref = searchParams.get('from') || '/';
 
   // Close sidebar on route change (mobile nav)
   useEffect(() => {
@@ -78,7 +80,7 @@ export function AdminSidebar({ children, user, isAdmin }: AdminSidebarProps) {
         </Link>
         {/* Home button */}
         <Link
-          href="/"
+          href={homeHref}
           aria-label="Ir para página inicial"
           className="flex h-10 w-10 items-center justify-center rounded-lg text-gray-500 hover:bg-gray-100 hover:text-brand-700 transition-colors"
         >
@@ -171,7 +173,7 @@ export function AdminSidebar({ children, user, isAdmin }: AdminSidebarProps) {
           {/* Divider */}
           <div className="pt-4 mt-4 border-t border-gray-100">
             <SidebarLink
-              href="/"
+              href={homeHref}
               label="Ir para o site"
               icon={HomeIcon}
               onClick={close}

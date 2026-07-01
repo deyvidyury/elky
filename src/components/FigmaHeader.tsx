@@ -85,7 +85,7 @@ export function FigmaHeader({ serverUser }: FigmaHeaderProps) {
             ))}
           </nav>
 
-          {/* Auth + Search + Wishlist + Cart */}
+          {/* Auth + Search */}
           <div className="flex items-center gap-4">
             <AuthButton serverUser={serverUser} />
 
@@ -122,48 +122,6 @@ export function FigmaHeader({ serverUser }: FigmaHeaderProps) {
                 </svg>
               </button>
             </form>
-
-            {/* Wishlist */}
-            <button
-              onClick={() => alert('Favoritos em breve disponível.')}
-              className="relative p-1.5 text-figma-dark hover:text-figma-red transition-colors"
-              aria-label="Favoritos"
-            >
-              <svg
-                className="h-5 w-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={1.5}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                />
-              </svg>
-            </button>
-
-            {/* Cart */}
-            <button
-              onClick={() => alert('Carrinho em breve disponível.')}
-              className="relative p-1.5 text-figma-dark hover:text-figma-red transition-colors"
-              aria-label="Carrinho"
-            >
-              <svg
-                className="h-5 w-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={1.5}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z"
-                />
-              </svg>
-            </button>
 
             {/* Mobile hamburger */}
             <button

@@ -92,8 +92,8 @@ Red vertical bar + label pattern:
 
 ```html
 <div className="flex items-center gap-4">
-  <div className="h-10 w-5 rounded-[2px] bg-[#db4444]" />
-  <span className="text-sm font-semibold text-[#db4444]">Label</span>
+  <div className="h-10 w-5 rounded-xs bg-figma-red" />
+  <span className="text-sm font-semibold text-figma-red">Label</span>
 </div>
 ```
 
@@ -119,7 +119,7 @@ Red vertical bar + label pattern:
 
 ### Dividers
 
-- `<hr className="border-[rgba(0,0,0,0.1)]" />` between major sections
+- `<hr className="border-figma-border" />` between major sections
 
 ### Promo Banner
 

@@ -17,8 +17,8 @@ className="bg-brand-900 text-accent-400"
 // Correct — references CSS variable directly (rarely needed)
 style={{ color: 'var(--color-brand-700)' }}
 
-// Never — hardcoded hex values
-className="bg-[#1e3a5f] text-[#d4a017]"
+// Never — hardcoded hex values (use bg-brand-700 text-accent-500 instead)
+className="bg-brand-700 text-accent-500"
 
 // Never — raw Tailwind color classes
 className="bg-blue-500 text-gray-600"

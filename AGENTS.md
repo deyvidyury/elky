@@ -28,6 +28,10 @@ Read in this exact order before any implementation:
 
 ## Rules That Never Change
 
+- **Ponytail is always active (full intensity).** Before every change, climb the ladder:
+  YAGNI → reuse → stdlib → native → installed dep → one-liner → minimum code.
+  No unrequested abstractions, no scaffolding "for later", deletion over addition.
+  Mark deliberate simplifications with `// ponytail:` comments.
 - Never use hardcoded hex values or raw Tailwind color classes
 - Update `progress-tracker.md` and `ui-registry.md` after every feature
 - Before any third party library — load its installed skill first,
@@ -39,6 +43,7 @@ Read in this exact order before any implementation:
 
 - `/architect` — before any complex feature. Think before building.
 - `/imprint` — after any new UI component. Capture patterns.
+- `/ponytail lite|full|ultra` — switch intensity (default: full, always active)
 - `/review` — before demo or when something feels off.
 - `/recover` — when something breaks after one failed correction.
 - `/remember save` — when a feature spans multiple sessions.
